@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Detalle comanda | Fuego Lento</title>
+
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+  {{> fragments/header-admin}}
+
+  <main class="main">
+
+    <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Comanda #{{order.id}}</h1>
+        <p>Mesa {{order.tableNumber}} · {{order.createdAt}}</p>
+      </div>
+    </div>
+
+    <section class="section admin-section">
+      <div class="container" data-aos="fade-up">
+        <div class="row justify-content-center">
+          <div class="col-12 col-lg-10 col-xl-9">
+
+            <!-- CARD -->
+            <div class="admin-table-wrap p-4 admin-order-card">
+
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+                <div>
+                  <h2 class="mb-1">Resumen</h2>
+                  <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <span class="badge {{order.statusBadgeClass}}">{{order.statusLabel}}</span>
+                    <span style="opacity:.85;">Total: <strong>{{order.total}}</strong></span>
+                  </div>
+                </div>
+
+                <div style="min-width: 260px;">
+                  <form action="/admin/orders/set-status-from-details" method="post">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                    <input type="hidden" name="orderId" value="{{order.id}}">
+                    <label class="form-label mb-1" style="opacity:.85;">Cambiar estado</label>
+                    <select class="form-select" name="status" onchange="this.form.submit()">
+                      <option value="SENT_TO_KITCHEN" {{#order.isSent}}selected{{/order.isSent}}>Recibida</option>
+                      <option value="IN_PROGRESS" {{#order.isProgress}}selected{{/order.isProgress}}>En marcha</option>
+                      <option value="READY" {{#order.isReady}}selected{{/order.isReady}}>Preparada</option>
+                      <option value="DELIVERED" {{#order.isDelivered}}selected{{/order.isDelivered}}>Entregada</option>
+                      <option value="CANCELLED" {{#order.isCancelled}}selected{{/order.isCancelled}}>Cancelada</option>
+                    </select>
+                  </form>
+                </div>
+              </div>
+
+              <hr style="opacity:.15;">
+
+              {{#order.hasCustomerNote}}
+                <div class="kds-note-box mb-3">
+                  <small><i class="bi bi-chat-left-text me-1"></i>{{order.customerNote}}</small>
+                </div>
+              {{/order.hasCustomerNote}}
+
+              <h4 class="mb-3">Platos</h4>
+
+              {{#order.hasItems}}
+                <ul class="kds-items">
+                  {{#order.items}}
+                    <li class="d-flex justify-content-between flex-wrap gap-2">
+                      <div>
+                        <strong>{{qty}}x </strong> {{name}} ({{unitPrice}}€/unidad)
+                        {{#hasNote}}<div class="kds-note">{{note}}</div>{{/hasNote}}
+                      </div>
+                      <div style="opacity:.9;">
+                        <strong>{{lineTotal}}€</strong>
+                      </div>
+                    </li>
+                  {{/order.items}}
+                </ul>
+              {{/order.hasItems}}
+
+              {{^order.hasItems}}
+                <div class="alert alert-warning mb-0">Esta comanda no tiene platos.</div>
+              {{/order.hasItems}}
+
+            </div>
+            <!-- /CARD -->
+
+            <!-- Buttons OUTSIDE the card -->
+            <div class="mt-4 d-flex gap-2 flex-wrap">
+              <a href="/admin/orders" class="btn btn-kds-secondary">
+                <i class="bi bi-arrow-left me-2"></i> Volver a gestión
+              </a>
+              <a href="/admin/kitchen" class="btn btn-kds-primary">
+                <i class="bi bi-fire me-2"></i> Ir a cocina
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+</body>
+</html>

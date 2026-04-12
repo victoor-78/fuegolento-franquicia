@@ -1,0 +1,1414 @@
+/**
+* Proyecto: Fuego Lento (basado en Restaurantly - BootstrapMade)
+* Enfoque: Fase 2 (HTML + CSS) - Maquetación, sin backend.
+*/
+
+/*--------------------------------------------------------------
+# Variables (paleta y tipografías)
+--------------------------------------------------------------*/
+:root {
+  /* Fonts */
+  --default-font: "Roboto", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --heading-font: "Playfair Display", serif;
+  --nav-font: "Poppins", sans-serif;
+
+  /* Colors */
+  --background-color: #111111;  /* carbón */
+  --surface-color: #1a1a1a;     /* bloques/tarjetas */
+  --default-color: #f5f5f5;     /* texto */
+  --heading-color: #ffffff;     /* títulos */
+
+  --accent-color: #8b1e1e;      /* rojo brasa */
+  --accent-hover: #e67e22;      /* naranja fuego */
+  --border-color: rgba(255, 255, 255, 0.10);
+
+  /* Nav */
+  --nav-color: rgba(255, 255, 255, 0.86);
+  --nav-hover-color: #e67e22;
+  --nav-mobile-bg: #1a1a1a;
+
+  scroll-behavior: smooth;
+}
+
+/*--------------------------------------------------------------
+# Base
+--------------------------------------------------------------*/
+body {
+  color: var(--default-color);
+  background-color: var(--background-color);
+  font-family: var(--default-font);
+}
+
+html {
+  overflow-y: scroll; /* Always reserve space for vertical scrollbar */
+}
+
+
+a {
+  color: var(--default-color);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
+  font-family: var(--heading-font);
+}
+
+/*--------------------------------------------------------------
+# Sections
+--------------------------------------------------------------*/
+section, .section {
+  background-color: var(--background-color);
+  padding: 60px 0;
+  scroll-margin-top: 90px;
+  overflow: clip;
+}
+
+@media (max-width: 1199px) {
+  section, .section {
+    scroll-margin-top: 70px;
+  }
+}
+
+/* Section title */
+.section-title {
+  padding-bottom: 40px;
+}
+
+.section-title h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.60);
+  margin: 0;
+  line-height: 1;
+}
+
+.section-title h2::after {
+  content: "";
+  width: 110px;
+  height: 2px;
+  display: inline-block;
+  background: var(--accent-color);
+  margin: 4px 10px;
+}
+
+.section-title p {
+  margin: 10px 0 0 0;
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--heading-color);
+  font-family: var(--heading-font);
+}
+
+/*--------------------------------------------------------------
+# Header / Topbar
+--------------------------------------------------------------*/
+.header {
+  background: rgba(17, 17, 17, 0.92);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+  transition: 0.3s;
+  z-index: 997;
+}
+
+.header .topbar {
+  height: 40px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header .topbar .contact-info i {
+  color: var(--accent-hover);
+  font-style: normal;
+}
+
+.header .topbar .contact-info i a,
+.header .topbar .contact-info i span {
+  color: var(--default-color);
+  padding-left: 6px;
+}
+
+.header .topbar .contact-info i a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.header .branding {
+  min-height: 82px;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Navbar (Bootstrap) */
+.header .navbar {
+  background: transparent !important;
+  padding: 0;
+}
+
+.header .navbar-brand {
+  padding: 0;
+  margin-right: 0;
+}
+
+.header .navbar-brand img {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  max-height: 60px;
+  margin-right: 14px;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+  border: none;
+}
+
+/* Si usas <span class="sitename"> en vez de h1 */
+.header .sitename {
+  font-size: 30px;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--heading-color);
+  font-family: var(--heading-font);
+}
+
+/* Links */
+.header .navbar-nav .nav-link {
+  color: var(--nav-color);
+  font-family: var(--nav-font);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 18px 12px;
+  transition: 0.2s;
+}
+
+.header .navbar-nav .nav-link:hover,
+.header .navbar-nav .nav-link.active {
+  color: var(--nav-hover-color);
+}
+
+
+/* Buttons (keeps your style) */
+.header .btn-book-a-table {
+  color: var(--default-color);
+  background: var(--accent-color);
+  border: 0;
+  text-transform: uppercase;
+  font-size: 14px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  transition: 0.2s;
+  display: inline-block;
+}
+
+.header .btn-book-a-table:hover {
+  background: var(--accent-hover);
+}
+
+.header .btn-login {
+  color: var(--default-color);
+  border: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 18px;
+  border-radius: 50px;
+  transition: 0.3s;
+  opacity: 0.85;
+  display: inline-block;
+}
+
+.header .btn-login:hover {
+  color: var(--accent-color);
+  opacity: 1;
+}
+
+/* Toggler (hamburger) */
+.header .navbar-toggler {
+  border: 1px solid color-mix(in srgb, var(--border-color), transparent 25%);
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.header .navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 75%);
+}
+
+/* Mobile dropdown panel */
+@media (max-width: 1199.98px) {
+
+  .header .navbar-nav .nav-link {
+    padding: 10px 6px;
+    font-size: 15px;
+  }
+
+  .header .navbar-collapse {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--background-color), transparent 8%);
+    border: 1px solid var(--border-color);
+  }
+
+  .header .navbar-collapse .navbar-nav {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color), transparent 20%);
+  }
+
+  .header .navbar-collapse .btn-login,
+  .header .navbar-collapse .btn-book-a-table {
+    width: 100%;
+  }
+}
+
+/* Keep navbar links always aligned across pages */
+.header .navbar-actions {
+  min-width: 360px;             /* ajusta si lo necesitas */
+  justify-content: flex-end;
+}
+
+/* Reserve space but hide element */
+.header .nav-action-placeholder {
+  visibility: hidden;           /* mantiene hueco */
+  pointer-events: none;
+}
+
+
+/*--------------------------------------------------------------
+# Hero
+--------------------------------------------------------------*/
+.hero {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  padding: 90px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 2;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 3;
+}
+
+.hero h2 {
+  font-size: 46px;
+  font-weight: 800;
+}
+
+.hero h2 span {
+  color: var(--accent-hover);
+}
+
+.hero p {
+  color: rgba(255,255,255,0.80);
+  margin: 10px 0 0 0;
+  font-size: 22px;
+}
+
+.hero .cta-btn {
+  color: var(--default-color);
+  background: var(--accent-color);
+  border: 0;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 999px;
+  transition: 0.2s;
+}
+
+.hero .cta-btn:hover {
+  background: var(--accent-hover);
+}
+
+@media (max-width: 768px) {
+  .hero h2 { font-size: 32px; }
+  .hero p { font-size: 18px; }
+}
+
+/*--------------------------------------------------------------
+# About
+--------------------------------------------------------------*/
+.about .about-img {
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  transition: 0.25s;
+}
+
+.about .about-img:hover {
+  transform: scale(1.02);
+}
+
+.about .content .fst-italic {
+  color: rgba(255,255,255,0.75);
+}
+
+.about .content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.about .content ul li {
+  padding: 10px 0 0 0;
+  display: flex;
+}
+
+.about .content ul i {
+  color: var(--accent-hover);
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/*--------------------------------------------------------------
+# Menu (con filtros)
+--------------------------------------------------------------*/
+.menu {
+  background-color: #0f0f0f;
+}
+
+.menu .menu-filters {
+  padding: 0;
+  margin: 0 auto 10px auto;
+  list-style: none;
+  text-align: center;
+}
+
+.menu .menu-filters li {
+  display: inline-block;
+  cursor: pointer;
+  padding: 7px 14px;
+  margin: 0 4px 10px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  color: rgba(255,255,255,0.80);
+  transition: 0.2s;
+  font-family: var(--nav-font);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.menu .menu-filters li:hover,
+.menu .menu-filters li.filter-active {
+  background: var(--accent-color);
+  border-color: transparent;
+  color: var(--default-color);
+}
+
+.menu .menu-item {
+  margin-top: 40px;
+}
+
+.menu .menu-img {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 50%;
+  float: left;
+  border: 2px solid var(--border-color);
+}
+
+.menu .menu-content {
+  margin-left: 95px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.menu .menu-content a {
+  color: var(--heading-color);
+  font-weight: 800;
+}
+
+.menu .menu-content a:hover {
+  color: var(--accent-hover);
+}
+
+.menu .menu-content span {
+  color: var(--accent-hover);
+  font-weight: 800;
+}
+
+.menu .menu-ingredients {
+  margin-left: 95px;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(255,255,255,0.65);
+}
+
+/*--------------------------------------------------------------
+# Forms (Reservas + Contacto)
+--------------------------------------------------------------*/
+.form-control {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-color);
+  color: var(--default-color);
+  border-radius: 10px;
+}
+
+.form-control::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+.form-control:focus {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(230, 126, 34, 0.60);
+  box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.15);
+  color: var(--default-color);
+}
+
+.php-email-form button[type="submit"] {
+  color: var(--default-color);
+  background: var(--accent-color);
+  border: 0;
+  padding: 12px 28px;
+  border-radius: 999px;
+  transition: 0.2s;
+  font-weight: 700;
+}
+
+.php-email-form button[type="submit"]:hover {
+  background: var(--accent-hover);
+}
+
+/*--------------------------------------------------------------
+# Gallery (mosaico + zoom suave)
+--------------------------------------------------------------*/
+.gallery .gallery-item {
+  overflow: hidden;
+  border-right: 3px solid var(--background-color);
+  border-bottom: 3px solid var(--background-color);
+}
+
+.gallery .gallery-item img {
+  transition: transform 0.25s ease;
+}
+
+.gallery .gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/*--------------------------------------------------------------
+# Contact
+--------------------------------------------------------------*/
+.contact {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.contact .info-item + .info-item {
+  margin-top: 30px;
+}
+
+.contact .info-item i {
+  color: var(--accent-hover);
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  margin-right: 15px;
+}
+
+/*--------------------------------------------------------------
+# Footer
+--------------------------------------------------------------*/
+.footer {
+  font-size: 14px;
+  padding-bottom: 40px;
+  border-top: 1px solid var(--border-color);
+}
+
+.footer .footer-top {
+  padding-top: 40px;
+}
+
+.footer .social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  color: rgba(255,255,255,0.75);
+  margin-right: 10px;
+  transition: 0.2s;
+}
+
+.footer .social-links a:hover {
+  border-color: var(--accent-hover);
+  color: var(--accent-hover);
+}
+
+.footer .footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer .footer-links ul li {
+  padding: 8px 0;
+}
+
+.footer .footer-links ul a {
+  color: rgba(255,255,255,0.75);
+}
+
+.footer .footer-links ul a:hover {
+  color: var(--accent-hover);
+}
+
+.footer .copyright {
+  padding-top: 25px;
+  border-top: 1px solid var(--border-color);
+}
+
+/*--------------------------------------------------------------
+# Scroll Top
+--------------------------------------------------------------*/
+.scroll-top {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  right: 15px;
+  bottom: 15px;
+  z-index: 99999;
+  background-color: var(--accent-color);
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.scroll-top i {
+  font-size: 26px;
+  color: var(--default-color);
+}
+
+.scroll-top:hover {
+  background-color: var(--accent-hover);
+}
+
+.scroll-top.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+/*--------------------------------------------------------------
+# Preloader (opcional)
+--------------------------------------------------------------*/
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  overflow: hidden;
+  background: var(--background-color);
+  transition: all 0.6s ease-out;
+}
+
+#preloader:before {
+  content: "";
+  position: fixed;
+  top: calc(50% - 30px);
+  left: calc(50% - 30px);
+  border: 6px solid #ffffff;
+  border-color: var(--accent-hover) transparent var(--accent-color) transparent;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: animate-preloader 1.2s linear infinite;
+}
+
+@keyframes animate-preloader {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/*--------------------------------------------------------------
+# AOS: quitar delay en móvil
+--------------------------------------------------------------*/
+@media screen and (max-width: 768px) {
+  [data-aos-delay] { transition-delay: 0 !important; }
+}
+
+/* ============================================
+   PAGE HERO (cabecera de páginas internas)
+   ============================================ */
+
+.page-hero {
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.55),
+      rgba(0, 0, 0, 0.55)
+    ),
+    url("../img/hero-bg.jpg") center center / cover no-repeat;
+  min-height: 45vh;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.page-hero .page-title {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--heading-color);
+}
+
+.page-hero .page-subtitle {
+  font-size: 18px;
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-hero {
+    min-height: 35vh;
+    padding: 40px 0;
+  }
+
+  .page-hero .page-title {
+    font-size: 30px;
+  }
+
+  .page-hero .page-subtitle {
+    font-size: 16px;
+  }
+}
+
+
+/* =========================================================
+   Login / Register (Fuego Lento)
+   ========================================================= */
+
+body.login-page {
+  background: var(--background-color);
+}
+
+/* Botón login estilo header */
+.header .btn-login,
+.header .btn-login:focus {
+  color: var(--default-color);
+  border: 2px solid color-mix(in srgb, var(--accent-color), transparent 30%);
+  text-transform: uppercase;
+  font-size: 14px;
+  padding: 6px 18px;
+  border-radius: 50px;
+  transition: 0.3s;
+  display: inline-block;
+}
+
+.header .btn-login:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 80%);
+  border-color: var(--accent-color);
+  color: var(--default-color);
+}
+
+.header .btn-login.active {
+  border-color: var(--accent-color);
+}
+
+/* Layout */
+.login-section {
+  padding-top: 120px; /* para que no lo tape el header fixed */
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: center;
+}
+
+.login-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: color-mix(in srgb, var(--surface-color), transparent 0%);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.login-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.login-back {
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  font-size: 14px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.login-back:hover {
+  color: var(--default-color);
+}
+
+.login-brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.login-brand img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.login-brand h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.login-brand p {
+  margin: 2px 0 0;
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+  font-size: 14px;
+}
+
+/* Tabs */
+.login-tabs {
+  display: flex;
+  gap: 10px;
+  background: color-mix(in srgb, var(--background-color), transparent 20%);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 6px;
+  margin-bottom: 18px;
+}
+
+.login-tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.login-tab.active {
+  background: color-mix(in srgb, var(--accent-color), transparent 65%);
+  color: var(--default-color);
+}
+
+.login-panels {
+  padding-top: 4px;
+}
+
+.login-panel {
+  display: none;
+}
+
+.login-panel.active {
+  display: block;
+}
+
+/* Inputs */
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: color-mix(in srgb, var(--default-color), transparent 45%);
+  pointer-events: none;
+}
+
+.input-with-icon .form-control {
+  padding-left: 40px;
+  background: color-mix(in srgb, var(--background-color), transparent 25%);
+  border: 1px solid color-mix(in srgb, var(--border-color), transparent 0%);
+  color: var(--default-color);
+  border-radius: 12px;
+}
+
+.input-with-icon .form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 75%);
+}
+
+.form-label {
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Botones */
+.btn-fuego {
+  border-radius: 999px;
+  border: 2px solid var(--accent-color);
+  background: var(--accent-color);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-fuego:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 15%);
+  border-color: color-mix(in srgb, var(--accent-color), transparent 10%);
+}
+
+.btn-ghost {
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--accent-color), transparent 35%);
+  color: var(--default-color);
+  background: transparent;
+  font-weight: 700;
+}
+
+.btn-ghost:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 80%);
+  border-color: var(--accent-color);
+}
+
+.login-link {
+  color: var(--accent-color);
+}
+
+.login-link:hover {
+  color: color-mix(in srgb, var(--accent-color), transparent 20%);
+}
+
+.login-small {
+  margin: 0;
+  font-size: 13px;
+  color: color-mix(in srgb, var(--default-color), transparent 45%);
+}
+
+/* =========================================================
+   Profile (Fuego Lento)
+   ========================================================= */
+
+body.profile-page {
+  background: var(--background-color);
+}
+
+.profile-section {
+  padding-top: 120px; /* evita que el header fixed lo tape */
+  padding-bottom: 60px;
+}
+
+.profile-page-header {
+  margin-bottom: 18px;
+}
+
+.profile-page-header h2 {
+  margin: 0 0 4px 0;
+  font-weight: 800;
+}
+
+.profile-breadcrumb {
+  font-size: 13px;
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+}
+
+.profile-breadcrumb a {
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+  text-decoration: none;
+}
+
+.profile-breadcrumb a:hover {
+  color: var(--default-color);
+}
+
+.profile-card {
+  background: color-mix(in srgb, var(--surface-color), transparent 0%);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.20);
+}
+
+.profile-user-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent-color), transparent 80%);
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 60%);
+}
+
+.profile-avatar i {
+  font-size: 22px;
+  color: var(--accent-color);
+}
+
+.profile-user-meta h3 {
+  margin: 0;
+}
+
+.profile-user-meta small {
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+}
+
+.profile-sep {
+  border-color: var(--border-color);
+  opacity: 1;
+}
+
+.profile-field {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.profile-field i {
+  color: var(--accent-color);
+  margin-top: 2px;
+}
+
+.profile-label {
+  font-weight: 800;
+}
+
+.profile-value {
+  color: color-mix(in srgb, var(--default-color), transparent 30%);
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.profile-pill {
+  border-radius: 999px;
+  border-color: var(--border-color);
+}
+
+.profile-quick-actions .btn {
+  border-radius: 999px;
+}
+
+.profile-note {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--background-color), white 3%);
+  border: 1px solid var(--border-color);
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+  font-size: 13px;
+}
+
+.profile-help p {
+  margin: 0;
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+}
+
+/* ================================
+   Menu (Carta) helpers
+   ================================ */
+
+.menu-link {
+  text-decoration: none;
+  color: color-mix(in srgb, var(--default-color), transparent 10%);
+}
+
+.menu-link:hover {
+  color: var(--default-color);
+}
+/* ===============================
+   Selects (Comanda – dark theme)
+   =============================== */
+
+select.form-control {
+  background-color: color-mix(in srgb, var(--background-color), transparent 25%);
+  color: var(--default-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  appearance: none; /* quita estilo nativo */
+}
+
+/* Opciones del desplegable */
+select.form-control option {
+  background-color: #2b2b2b; /* gris oscuro elegante */
+  color: #f1f1f1;
+}
+
+/* Focus */
+select.form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 75%);
+}
+
+/* =========================================================
+   Order confirmation (Comanda enviada)
+   ========================================================= */
+
+.comanda-confirmation {
+  padding-top: 140px; /* to avoid fixed header overlap */
+  padding-bottom: 80px;
+}
+
+.confirmation-card {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  padding: 46px 28px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+
+.confirmation-icon {
+  width: 74px;
+  height: 74px;
+  border-radius: 999px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent-color), transparent 75%);
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 50%);
+}
+
+.confirmation-icon i {
+  font-size: 34px;
+  color: var(--accent-color);
+}
+
+.confirmation-title {
+  font-family: "Playfair Display", serif;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.confirmation-text {
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  margin-bottom: 0;
+}
+
+.confirmation-subtext {
+  color: color-mix(in srgb, var(--default-color), transparent 45%);
+  font-size: 14px;
+}
+
+.confirmation-details {
+  margin-top: 22px;
+}
+
+.confirmation-pill {
+  background: color-mix(in srgb, var(--background-color), white 3%);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 14px 14px;
+  text-align: left;
+}
+
+.confirmation-pill .label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--default-color), transparent 45%);
+}
+
+.confirmation-pill .value {
+  display: block;
+  margin-top: 4px;
+  font-weight: 800;
+  color: var(--default-color);
+}
+
+.btn-confirm-primary {
+  border-radius: 999px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-confirm-ghost {
+  border-radius: 999px;
+  border-color: var(--border-color);
+}
+
+.confirmation-note {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--background-color), white 3%);
+  border: 1px solid var(--border-color);
+  color: color-mix(in srgb, var(--default-color), transparent 30%);
+}
+
+/* =========================================================
+   Orders / Pedidos (Fuego Lento)
+   ========================================================= */
+
+body.orders-page {
+  background: var(--background-color);
+}
+
+.orders-section {
+  padding-top: 120px; /* fixed header */
+  padding-bottom: 60px;
+}
+
+.orders-page-header h2 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.orders-breadcrumb {
+  font-size: 14px;
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+}
+
+.orders-breadcrumb a {
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+}
+
+.orders-top-actions {
+  margin-top: 18px;
+  margin-bottom: 10px;
+}
+
+.orders-pill {
+  border-radius: 999px;
+  border-color: var(--border-color);
+}
+
+.orders-card {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.orders-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-weight: 800;
+}
+
+.orders-id {
+  font-size: 18px;
+}
+
+.orders-dot {
+  opacity: 0.45;
+}
+
+.orders-meta {
+  font-size: 14px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+}
+
+.orders-subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: color-mix(in srgb, var(--default-color), transparent 45%);
+}
+
+.orders-status {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--background-color), transparent 25%);
+  white-space: nowrap;
+}
+
+.orders-status.status-sent {
+  border-color: color-mix(in srgb, var(--accent-color), transparent 50%);
+  background: color-mix(in srgb, var(--accent-color), transparent 85%);
+}
+
+.orders-status.status-cooking {
+  border-color: color-mix(in srgb, #3aa0ff, transparent 55%);
+  background: color-mix(in srgb, #3aa0ff, transparent 88%);
+}
+
+.orders-status.status-served {
+  border-color: color-mix(in srgb, #39d98a, transparent 55%);
+  background: color-mix(in srgb, #39d98a, transparent 88%);
+}
+
+.orders-sep {
+  border-color: var(--border-color);
+  opacity: 0.8;
+  margin: 14px 0;
+}
+
+.orders-items {
+  display: grid;
+  gap: 10px;
+}
+
+.orders-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--border-color), transparent 0%);
+  background: color-mix(in srgb, var(--background-color), transparent 22%);
+}
+
+.orders-item-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.orders-qty {
+  font-weight: 900;
+  color: color-mix(in srgb, var(--default-color), transparent 10%);
+}
+
+.orders-name {
+  font-weight: 800;
+}
+
+.orders-tags {
+  font-size: 13px;
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+}
+
+.orders-price {
+  font-weight: 900;
+  color: var(--accent-color);
+}
+
+.orders-note {
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--background-color), transparent 18%);
+}
+
+.orders-note-muted .orders-note-body {
+  opacity: 0.7;
+}
+
+.orders-note-title {
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: color-mix(in srgb, var(--default-color), transparent 10%);
+}
+
+.orders-note-body {
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  font-size: 14px;
+}
+
+.orders-total {
+  width: 180px;
+  text-align: right;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--background-color), transparent 18%);
+}
+
+.orders-total-label {
+  font-weight: 800;
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+  font-size: 13px;
+}
+
+.orders-total-value {
+  font-weight: 900;
+  font-size: 20px;
+  margin-top: 2px;
+  color: var(--accent-color);
+}
+
+.orders-foot-note small {
+  color: color-mix(in srgb, var(--default-color), transparent 45%);
+}
+
+.cart-bump {
+  animation: cartBump 0.45s ease-in-out;
+}
+
+@keyframes cartBump {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  40%  { transform: translate(-50%, -50%) scale(1.35); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ================================
+   HEADER - Align action buttons
+   ================================ */
+
+.header .navbar-actions .btn-login,
+.header .navbar-actions .btn-book-a-table {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;         /* misma “altura” visual */
+  line-height: 1;       /* evita descentrado del texto */
+}
+
+/* Igualamos el padding vertical de btn-login al de Reservar */
+.header .navbar-actions .btn-login {
+  padding: 10px 18px;   /* antes 6px 18px -> ahora coincide en vertical */
+  opacity: 1;           /* si no lo quieres “apagado” */
+}
+
+/* El icono no debe empujar hacia arriba/abajo */
+.header .navbar-actions .btn-login i {
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}

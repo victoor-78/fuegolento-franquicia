@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Editar perfil - Fuego Lento</title>
+
+  <!-- Favicon -->
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="profile-page">
+
+  {{#isLogged}}
+  {{#isAdmin}}
+    {{> fragments/header-admin}}
+  {{/isAdmin}}
+  {{^isAdmin}}
+    {{> fragments/header-user}}
+  {{/isAdmin}}
+  {{/isLogged}}
+
+  <main class="main">
+
+    <section class="section profile-section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <!-- Page header -->
+        <div class="profile-page-header d-flex flex-wrap align-items-end justify-content-between gap-2">
+          <div>
+            <h2>Editar perfil</h2>
+            <div class="kds-muted">Actualiza tu email y fecha de nacimiento</div>
+          </div>
+
+          <div class="profile-breadcrumb">
+            <i class="bi bi-house-door me-1"></i>
+            <a href="/">Inicio</a> /
+            <a href="/profile">Mi cuenta</a> /
+            <span>Editar</span>
+          </div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+          <div class="col-lg-8">
+            <div class="profile-card">
+
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="profile-avatar" style="width:48px;height:48px;">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                  <h3 class="mb-0">{{username}}</h3>
+                  <small class="kds-muted">Cambios sobre tu cuenta</small>
+                </div>
+              </div>
+
+              <hr class="profile-sep">
+
+              <!-- Error message (backend validation) -->
+              {{#error}}
+              <div class="alert alert-danger d-flex align-items-center" role="alert" style="margin-top: 14px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>{{error}}</div>
+              </div>
+              {{/error}}
+
+              <form action="/profile/edit" method="post" class="mt-3" novalidate>
+                <input type="hidden" name="_csrf" value="{{token}}">
+
+                <!-- Email -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="email">
+                    <i class="bi bi-envelope me-1"></i> Email
+                  </label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    value="{{email}}"
+                    required>
+                  <div class="form-text">Usa un email válido (ej: usuario@dominio.com).</div>
+                </div>
+
+                <!-- Birthdate -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold" for="birthDate">
+                    <i class="bi bi-calendar3 me-1"></i> Fecha de nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="birthDate"
+                    name="birthDate"
+                    value="{{birthDate}}">
+                  <div class="form-text">Opcional. Si no quieres guardarla, déjalo vacío.</div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap mt-4">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2 me-1"></i> Guardar cambios
+                  </button>
+
+                  <a href="/profile" class="btn btn-outline-light">
+                    <i class="bi bi-arrow-left me-1"></i> Volver
+                  </a>
+                </div>
+
+              </form>
+
+              <div class="confirmation-note mt-4">
+                <i class="bi bi-info-circle me-2"></i>
+                En esta entrega solo se permite editar email y fecha de nacimiento.
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <!-- Vendor JS -->
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+
+  <!-- Main JS -->
+  <script src="/js/main.js"></script>
+
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+</body>
+</html>

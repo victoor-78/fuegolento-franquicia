@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Dashboard | Fuego Lento</title>
+
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="index-page">
+
+  {{> fragments/header-admin}}
+
+  <main class="main">
+
+    <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Dashboard</h1>
+        <p>Estadísticas del restaurante para analizar actividad y crecimiento.</p>
+      </div>
+    </div>
+
+    <section class="section" style="padding-top: 40px; padding-bottom: 70px;">
+      <div class="container" data-aos="fade-up">
+
+        <div class="row g-4">
+
+          <!-- Revenue per day -->
+          <div class="col-12">
+            <div class="p-4 p-md-5 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <div>
+                  <h2 class="mb-1">Facturación diaria</h2>
+                  <p class="mb-0" style="opacity:.8;">Suma de totalPrice de comandas DELIVERED (últimos 14 días)</p>
+                </div>
+              </div>
+              <canvas id="revenueDailyChart" style="max-height: 360px;"></canvas>
+            </div>
+          </div>
+
+          <!-- Orders by hour -->
+          <div class="col-lg-6">
+            <div class="p-4 p-md-5 rounded-4 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+              <h2 class="mb-1">Comandas por hora</h2>
+              <p class="mb-3" style="opacity:.8;">Número de comandas DELIVERED agrupadas por hora (últimos 14 días)</p>
+              <canvas id="ordersByHourChart" style="max-height: 360px;"></canvas>
+            </div>
+          </div>
+
+          <!-- Users registrations -->
+          <div class="col-lg-6">
+            <div class="p-4 p-md-5 rounded-4 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+              <h2 class="mb-1">Altas de usuarios</h2>
+              <p class="mb-3" style="opacity:.8;">Usuarios registrados por día (últimos 40 días)</p>
+              <canvas id="usersRegistrationsChart" style="max-height: 360px;"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-4">
+          <a href="/" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-2"></i> Volver al inicio
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+  <script>
+    async function fetchJson(url) {
+      const res = await fetch(url, { credentials: "same-origin" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    // 1) Revenue daily (bar)
+    (async function initRevenueDaily() {
+      const data = await fetchJson("/api/admin/dashboard/revenue-daily?days=14");
+      const ctx = document.getElementById("revenueDailyChart").getContext("2d");
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: data.map(p => p.label),
+          datasets: [{
+            label: "€ por día",
+            data: data.map(p => p.value)
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: "€" } }
+          }
+        }
+      });
+    })().catch(console.error);
+
+    // 2) Orders by hour (bar)
+    (async function initOrdersByHour() {
+      const data = await fetchJson("/api/admin/dashboard/orders-by-hour?days=14");
+      const ctx = document.getElementById("ordersByHourChart").getContext("2d");
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: data.map(p => p.label),
+          datasets: [{
+            label: "Comandas",
+            data: data.map(p => p.value)
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+    })().catch(console.error);
+
+    // 3) Users registrations (line)
+    (async function initUsersRegistrations() {
+      const data = await fetchJson("/api/admin/dashboard/users-registrations?days=40");
+      const ctx = document.getElementById("usersRegistrationsChart").getContext("2d");
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.map(p => p.label),
+          datasets: [{
+            label: "Altas",
+            data: data.map(p => p.value),
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+    })().catch(console.error);
+  </script>
+
+</body>
+</html>

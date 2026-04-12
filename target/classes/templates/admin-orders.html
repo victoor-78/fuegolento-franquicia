@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Panel Admin - Comandas | Fuego Lento</title>
+
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+  {{> fragments/header-admin}}
+
+  <main class="main">
+
+    <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Gestión de comandas</h1>
+        <p>Revisa y gestiona el estado de las comandas de las mesas.</p>
+      </div>
+    </div>
+
+    <section class="section admin-section">
+      <div class="container" data-aos="fade-up">
+
+        <div class="admin-toolbar d-flex align-items-end justify-content-between gap-3 flex-wrap">
+          <div>
+            <h2 class="admin-title mb-1">Comandas</h2>
+            <p class="mb-0" style="opacity: 0.8;">
+              Cambia el estado, consulta detalles o cancela una comanda.
+            </p>
+          </div>
+
+          <!-- Search (real) -->
+          <form class="admin-search" action="/admin/orders" method="get">
+            <i class="bi bi-search"></i>
+            <input type="text" class="form-control" name="q" value="{{searchQuery}}"
+                   placeholder="Buscar por mesa o número de comanda...">
+          </form>
+        </div>
+
+        <div class="table-responsive admin-table-wrap">
+          <table class="table admin-table align-middle">
+            <thead>
+              <tr>
+                <th>Nº</th>
+                <th>Mesa</th>
+                <th>Hora</th>
+                <th>Platos</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {{#hasOrders}}
+                {{#orders}}
+                <tr>
+                  <td><strong>#{{id}}</strong></td>
+                  <td>Mesa {{tableNumber}}</td>
+                  <td><i class="bi bi-clock me-1"></i>{{time}}</td>
+                  <td>{{itemsCount}}</td>
+                  <td><strong>{{total}}</strong></td>
+                  <td>
+                    <span class="badge {{statusBadgeClass}}">{{statusLabel}}</span>
+
+                    <!-- Status select (functional) -->
+                    <form action="/admin/orders/set-status" method="post" class="mt-2">
+                      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                      <input type="hidden" name="orderId" value="{{id}}">
+
+                      <select class="form-select form-select-sm" name="status"
+                              onchange="this.form.submit()">
+                        <option value="SENT_TO_KITCHEN" {{#isSent}}selected{{/isSent}}>Recibida</option>
+                        <option value="IN_PROGRESS" {{#isProgress}}selected{{/isProgress}}>En marcha</option>
+                        <option value="READY" {{#isReady}}selected{{/isReady}}>Preparada</option>
+                        <option value="DELIVERED" {{#isDelivered}}selected{{/isDelivered}}>Entregada</option>
+                        <option value="CANCELLED" {{#isCancelled}}selected{{/isCancelled}}>Cancelada</option>
+                      </select>
+                    </form>
+                  </td>
+
+                  <td class="text-end">
+                    <a class="btn btn-sm btn-kds-secondary me-2" href="/admin/orders/{{id}}">
+                      <i class="bi bi-eye me-1"></i> Detalles
+                    </a>
+                  </td>
+                </tr>
+                {{/orders}}
+              {{/hasOrders}}
+
+              {{^hasOrders}}
+                <tr>
+                  <td colspan="7">
+                    <div class="alert alert-warning mb-0">
+                      No hay comandas que coincidan con la búsqueda.
+                    </div>
+                  </td>
+                </tr>
+              {{/hasOrders}}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4">
+          <a href="/" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-2"></i> Volver al inicio
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+</body>
+</html>

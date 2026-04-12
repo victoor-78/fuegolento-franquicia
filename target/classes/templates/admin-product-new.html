@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Panel Admin - Nuevo producto | Fuego Lento</title>
+
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+  {{> fragments/header-admin}}
+
+  <main class="main">
+
+    <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Nuevo producto</h1>
+        <p>Crea un nuevo plato o bebida para la carta desde el panel de administración.</p>
+      </div>
+    </div>
+
+    <section class="section" style="padding-top: 40px; padding-bottom: 60px;">
+      <div class="container" data-aos="fade-up">
+
+        <div class="row g-4 align-items-stretch">
+
+          <!-- Preview column -->
+          <div class="col-lg-6">
+            <div class="rounded-4 overflow-hidden h-100" style="border: 1px solid var(--border-color); background: rgba(255,255,255,0.03);">
+              <div class="d-flex align-items-center justify-content-center h-100" style="min-height: 520px;">
+                <div class="text-center px-4">
+                  <img id="previewImg" src="/img/logo.png" alt="Preview" style="width: 140px; height: 140px; object-fit: contain; opacity: 0.95;">
+                  <h3 class="mt-3 mb-2" style="font-weight: 900;">Vista previa</h3>
+                  <p class="mb-0" style="opacity: 0.8;">
+                    Selecciona una imagen para previsualizar el producto.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form column -->
+          <div class="col-lg-6">
+            <div class="h-100 p-4 rounded-4"
+                 style="border: 1px solid var(--border-color);
+                        background: color-mix(in srgb, var(--surface-color), transparent 10%);
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+
+              <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                <div>
+                  <p class="mb-1" style="letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75;">
+                    Crear producto
+                  </p>
+                  <h2 class="mb-0" style="font-weight: 900;">Nuevo producto</h2>
+                </div>
+
+                <div class="text-end">
+                  <p class="mb-1" style="opacity: 0.75;">Estado</p>
+                  {{#form.available}}
+                    <span class="badge status-active">Disponible</span>
+                  {{/form.available}}
+                  {{^form.available}}
+                    <span class="badge status-banned">No disponible</span>
+                  {{/form.available}}
+                </div>
+              </div>
+
+              {{#errorMessage}}
+                <div class="alert alert-danger">{{errorMessage}}</div>
+              {{/errorMessage}}
+
+              {{#successMessage}}
+                <div class="alert alert-success">{{successMessage}}</div>
+              {{/successMessage}}
+
+              <form action="/admin/products/new" method="post" enctype="multipart/form-data">
+
+                <input type="hidden" name="_csrf" value="{{token}}">
+
+                <!-- Product name -->
+                <div class="mb-3">
+                  <label for="name" class="form-label fw-bold">Nombre</label>
+                  <input id="name" name="name" type="text" class="form-control"
+                         value="{{form.name}}" placeholder="Ej: Chuletón a la piedra" required>
+                </div>
+
+                <!-- Category + price -->
+                <div class="row g-3">
+                  <div class="col-md-7">
+                    <label for="category" class="form-label fw-bold">Categoría</label>
+                    <select id="category" name="category" class="form-select" required>
+                      <option value="" disabled {{^form.category}}selected{{/form.category}}>Selecciona una categoría</option>
+                      <option value="STARTER" {{#catStarter}}selected{{/catStarter}}>Entrantes</option>
+                      <option value="MEAT" {{#catMeat}}selected{{/catMeat}}>Carnes</option>
+                      <option value="DESSERT" {{#catDessert}}selected{{/catDessert}}>Postres</option>
+                      <option value="DRINK" {{#catDrink}}selected{{/catDrink}}>Bebidas</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-5">
+                    <label for="price" class="form-label fw-bold">Precio (€)</label>
+                    <input id="price" name="price" type="text" class="form-control"
+                           value="{{form.price}}" placeholder="Ej: 12,50" required>
+                    <div class="form-text" style="opacity:.75;">Puedes usar punto o coma (12.50 / 12,50)</div>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mt-3">
+                  <label for="description" class="form-label fw-bold">Descripción</label>
+                  <textarea id="description" name="description" class="form-control" rows="3"
+                            placeholder="Describe el producto de forma breve...">{{form.description}}</textarea>
+                </div>
+
+                <!-- Image upload -->
+                <div class="mt-3">
+                  <label for="imageFile" class="form-label fw-bold">Imagen (archivo)</label>
+                  <input id="imageFile" name="imageFile" type="file" class="form-control" accept="image/*">
+                  <div class="form-text" style="opacity: 0.75;">
+                    Si no subes imagen, se usará la imagen por defecto.
+                  </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="mt-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="available" name="available" {{#form.available}}checked{{/form.available}}>
+                    <label class="form-check-label" for="available">
+                      Disponible en carta
+                    </label>
+                  </div>
+
+                  <small style="opacity:0.75;">
+                    Si no está disponible, no aparecerá en la carta pública.
+                  </small>
+                </div>
+
+                <!-- Allergens -->
+                <div class="mt-4">
+                  <p class="fw-bold mb-2">Alérgenos (opcional)</p>
+                  <div class="d-flex flex-wrap gap-2">
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-gluten" name="allergens" value="GLUTEN" {{#algGluten}}checked{{/algGluten}}>
+                      <label class="form-check-label" for="alg-gluten">Gluten</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-milk" name="allergens" value="MILK" {{#algMilk}}checked{{/algMilk}}>
+                      <label class="form-check-label" for="alg-milk">Lácteos</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-egg" name="allergens" value="EGG" {{#algEgg}}checked{{/algEgg}}>
+                      <label class="form-check-label" for="alg-egg">Huevo</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-nuts" name="allergens" value="NUTS" {{#algNuts}}checked{{/algNuts}}>
+                      <label class="form-check-label" for="alg-nuts">Frutos secos</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-fish" name="allergens" value="FISH" {{#algFish}}checked{{/algFish}}>
+                      <label class="form-check-label" for="alg-fish">Pescado</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-shellfish" name="allergens" value="SHELLFISH" {{#algShellfish}}checked{{/algShellfish}}>
+                      <label class="form-check-label" for="alg-shellfish">Marisco</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-soy" name="allergens" value="SOY" {{#algSoy}}checked{{/algSoy}}>
+                      <label class="form-check-label" for="alg-soy">Soja</label>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="alg-sesame" name="allergens" value="SESAME" {{#algSesame}}checked{{/algSesame}}>
+                      <label class="form-check-label" for="alg-sesame">Sésamo</label>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex align-items-center gap-2 mt-4 flex-wrap">
+                  <a href="/admin/products" class="btn btn-kds-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Volver
+                  </a>
+
+                  <div class="flex-grow-1 d-flex justify-content-center">
+                    <button class="btn btn-kds-primary" type="submit">
+                      <i class="bi bi-plus-circle me-1"></i> Crear producto
+                    </button>
+                  </div>
+
+                  <button class="btn btn-danger-soft" type="button" disabled title="No disponible en modo creación">
+                    <i class="bi bi-slash-circle me-1"></i> Eliminar
+                  </button>
+                </div>
+
+              </form>
+
+              <p class="mt-3 mb-0" style="opacity:0.7; font-size: 13px;">
+                * En esta pantalla ya se crea el producto en base de datos.
+              </p>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+
+    // Image preview (optional but nice)
+    const input = document.getElementById("imageFile");
+    const img = document.getElementById("previewImg");
+    if (input && img) {
+      input.addEventListener("change", () => {
+        const f = input.files && input.files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        img.src = url;
+        img.style.width = "240px";
+        img.style.height = "240px";
+        img.style.objectFit = "cover";
+        img.style.borderRadius = "16px";
+      });
+    }
+  </script>
+
+</body>
+</html>

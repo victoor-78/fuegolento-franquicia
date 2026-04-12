@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Comanda enviada | Fuego Lento</title>
+
+  <link href="/img/logo.png" rel="icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+  {{#isLogged}}
+  {{#isAdmin}}
+    {{> fragments/header-admin}}
+  {{/isAdmin}}
+  {{^isAdmin}}
+    {{> fragments/header-user}}
+  {{/isAdmin}}
+  {{/isLogged}}
+
+  <main class="main">
+    <section class="section comanda-confirmation">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+
+            <div class="confirmation-card text-center">
+              <div class="confirmation-icon">
+                <i class="bi bi-check2"></i>
+              </div>
+
+              <h2 class="confirmation-title">Comanda enviada</h2>
+              <p class="confirmation-text">
+                Hemos recibido tu comanda y ya está en cola para cocina.
+              </p>
+
+              <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
+                <a href="/menu" class="btn btn-outline-light btn-confirm-ghost">
+                  <i class="bi bi-arrow-left me-2"></i> Volver al menú
+                </a>
+                <a href="/profile" class="btn btn-primary btn-confirm-primary">
+                  <i class="bi bi-person me-2"></i> Ir a mi cuenta
+                </a>
+              </div>
+
+              <div class="confirmation-note mt-4">
+                <i class="bi bi-info-circle me-2"></i>
+                Si necesitas modificar algo, avisa al personal antes de que la comanda entre en fuego.
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  {{> fragments/footer}}
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+</body>
+</html>

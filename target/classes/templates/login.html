@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Acceso | Fuego Lento</title>
+  <meta name="description" content="Accede o crea tu cuenta en Fuego Lento para reservar mesa y gestionar tus reservas.">
+  <meta name="keywords" content="restaurante, brasa, carne a la piedra, reservas, login">
+
+  <!-- Favicons -->
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="/css/main.css" rel="stylesheet">
+</head>
+<body class="login-page">
+
+  {{> fragments/header-guest}}
+
+  <main class="main">
+
+    <section class="login-section section d-flex align-items-center" style="min-height: 100vh;">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="login-card">
+          <div class="login-card-header">
+            <a href="/" class="login-back">
+              <i class="bi bi-arrow-left"></i> Volver al inicio
+            </a>
+
+            <div class="login-brand">
+              <img src="/img/logo.png" alt="Fuego Lento">
+              <div>
+                <h2>Pide desde tu mesa</h2>
+                <p>Inicia sesión y envía tus comandas directamente a cocina.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="login-tabs" role="tablist" aria-label="Acceso y registro">
+            <button class="login-tab active" type="button" data-tab="login">Iniciar sesión</button>
+            <button class="login-tab" type="button" data-tab="register">Crear cuenta</button>
+          </div>
+
+          <div class="login-panels">
+
+            <!-- LOGIN -->
+            <div class="login-panel active" id="panel-login">
+              <form action="/login" method="post">
+                <input type="hidden" name="_csrf" value="{{token}}">
+
+                <div class="row g-3">
+
+                  {{#error}}
+                  <div class="col-12">
+                    <div class="alert alert-danger mb-0">
+                      {{error}}
+                    </div>
+                  </div>
+                  {{/error}}
+
+                  <div class="col-12">
+                    <label class="form-label" for="loginUsername">Usuario</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-person"></i>
+                      <input id="loginUsername" name="username" type="text"
+                             class="form-control" placeholder="tu usuario" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="loginPassword">Contraseña</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-lock"></i>
+                      <input id="loginPassword" name="password" type="password"
+                             class="form-control" placeholder="••••••••" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" name="remember-me">
+                      <span class="form-check-label">Recordarme</span>
+                    </label>
+
+                    <a class="login-link" href="#">¿Has olvidado la contraseña?</a>
+                  </div>
+
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 btn-fuego">
+                      Entrar
+                    </button>
+                  </div>
+
+                </div>
+              </form>
+            </div>
+
+            <!-- REGISTER -->
+            <div class="login-panel" id="panel-register">
+              <form action="/register" method="post">
+                <input type="hidden" name="_csrf" value="{{token}}">
+
+                <div class="row g-3">
+
+                  {{#registerError}}
+                  <div class="col-12">
+                    <div class="alert alert-danger mb-0">
+                      {{registerError}}
+                    </div>
+                  </div>
+                  {{/registerError}}
+
+                  {{#registerOk}}
+                  <div class="col-12">
+                    <div class="alert alert-success mb-0">
+                      {{registerOk}}
+                    </div>
+                  </div>
+                  {{/registerOk}}
+
+                  <div class="col-12">
+                    <label class="form-label" for="regName">Nombre de usuario</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-person"></i>
+                      <input id="regName" name="username" type="text" class="form-control" placeholder="Tu usuario" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="regEmail">Email</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-envelope"></i>
+                      <input id="regEmail" name="email" type="email" class="form-control" placeholder="tuemail@ejemplo.com" required>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="regPass">Contraseña</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-lock"></i>
+                      <input id="regPass" name="password" type="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="regPass2">Confirmación</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-shield-lock"></i>
+                      <input id="regPass2" name="password2" type="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="regBirth">Fecha de nacimiento</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-calendar-event"></i>
+                      <input id="regBirth" name="birthDate" type="date" class="form-control" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 btn-fuego">
+                      Crear cuenta
+                    </button>
+                  </div>
+
+                  <div class="col-12 text-center">
+                    <p class="login-small">
+                      Al registrarte aceptas el <a class="login-link" href="#">aviso legal</a> y la
+                      <a class="login-link" href="#">política de privacidad</a>.
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/vendor/aos/aos.js"></script>
+<script src="/js/main.js"></script>
+
+  <script>
+    // Ensure AOS animations (safe if main.js already does it)
+    if (window.AOS) AOS.init();
+  </script>
+
+  <script>
+    (function () {
+      const tabs = document.querySelectorAll('.login-tab');
+      const panelLogin = document.getElementById('panel-login');
+      const panelRegister = document.getElementById('panel-register');
+
+      function setActive(tabName) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        panelLogin.classList.toggle('active', tabName === 'login');
+        panelRegister.classList.toggle('active', tabName === 'register');
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => setActive(t.dataset.tab)));
+
+      const serverTab = "{{activeTab}}";
+      if (serverTab === "register") setActive("register");
+      else setActive("login");
+    })();
+  </script>
+
+</body>
+</html>

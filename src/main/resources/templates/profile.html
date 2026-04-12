@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Mi perfil - Fuego Lento</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicon -->
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+  <link href="/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="profile-page">
+
+  {{#isLogged}}
+  {{#isAdmin}}
+    {{> fragments/header-admin}}
+  {{/isAdmin}}
+  {{^isAdmin}}
+    {{> fragments/header-user}}
+  {{/isAdmin}}
+  {{/isLogged}}
+
+
+  <main class="main">
+
+    <!-- ======= Profile Section ======= -->
+    <section id="profile" class="section profile-section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <!-- Page header -->
+        <div class="profile-page-header d-flex flex-wrap align-items-end justify-content-between gap-2">
+          <div>
+            <h2>Mi cuenta</h2>
+            <div class="kds-muted">Gestiona tus datos y accesos rápidos</div>
+          </div>
+
+          <div class="profile-breadcrumb">
+            <i class="bi bi-house-door me-1"></i>
+            <a href="/">Inicio</a> /
+            <span>Mi cuenta</span>
+          </div>
+        </div>
+
+        {{#updated}}
+        <div class="alert alert-success d-flex align-items-center" role="alert" style="margin-top: 14px;">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <div>
+            Tus datos se han actualizado correctamente.
+          </div>
+        </div>
+        {{/updated}}
+
+        <div class="row g-4 align-items-start">
+
+          <!-- Card: Datos -->
+          <div class="col-lg-7">
+            <div class="profile-card">
+
+              <div class="profile-user-head">
+                <div class="profile-avatar">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="profile-user-meta">
+                  <h3>{{username}}</h3>
+                  <small>Usuario registrado</small>
+                </div>
+              </div>
+
+              <hr class="profile-sep">
+
+              <div class="row gy-3">
+                <div class="col-md-6">
+                  <div class="profile-field">
+                    <i class="bi bi-envelope"></i>
+                    <div>
+                      <div class="profile-label">Email</div>
+                      <div class="profile-value">{{email}}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="profile-field">
+                    <i class="bi bi-telephone"></i>
+                    <div>
+                      <div class="profile-label">Teléfono</div>
+                      <div class="profile-value">+34 600 000 000</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="profile-field">
+                    <i class="bi bi-geo-alt"></i>
+                    <div>
+                      <div class="profile-label">Dirección</div>
+                      <div class="profile-value">Calle Ejemplo 12, Madrid</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-actions">
+                <a href="/profile/edit" class="btn btn-outline-light profile-pill">
+                  <i class="bi bi-pencil-square me-1"></i> Editar perfil
+                </a>
+
+                <a href="/orders" class="btn btn-outline-light profile-pill">
+                  <i class="bi bi-receipt me-1"></i> Mis pedidos
+                </a>
+                
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right column -->
+          <div class="col-lg-5">
+
+            <!-- Card: Quick actions -->
+            <div class="profile-card profile-quick-actions mb-4">
+              <h4 class="mb-3">Acciones rápidas</h4>
+
+              <div class="d-grid gap-2">
+                <a href="/menu" class="btn btn-primary">
+                  <i class="bi bi-fire me-1"></i> Pedir desde la carta
+                </a>
+
+                <a href="/#book-a-table" class="btn btn-outline-light profile-pill">
+                  <i class="bi bi-calendar2-check me-1"></i> Reservar mesa
+                </a>
+
+                <!-- Logout (POST + CSRF) -->
+                <form action="/logout" method="post" class="m-0">
+                  <input type="hidden" name="_csrf" value="{{token}}">
+                  <button type="submit" class="btn btn-outline-light profile-pill w-100">
+                    <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+                  </button>
+                </form>
+              </div>
+
+            <!-- Card: Info -->
+            <div class="profile-card profile-help">
+              <h4 class="mb-2">Tu mesa digital</h4>
+              <p>Desde aquí podrás acceder a tus pedidos y, más adelante, gestionar reservas y datos personales.</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <!-- End Profile Section -->
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="/js/main.js"></script>
+
+  <script>
+    if (window.AOS) AOS.init();
+  </script>
+
+</body>
+</html>

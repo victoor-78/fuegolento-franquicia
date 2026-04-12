@@ -1,0 +1,58 @@
+<!-- ======= Header (USER) ======= -->
+<header id="header" class="header fixed-top">
+  <div class="branding">
+    <div class="container">
+
+      <nav class="navbar navbar-expand-xl navbar-dark py-2">
+
+        <!-- Logo -->
+        <a href="/" class="navbar-brand d-flex align-items-center">
+          <img src="/img/logo.png" alt="Logo Fuego Lento" style="max-height:60px; margin-right:14px;">
+          <span class="sitename" style="font-weight:800; letter-spacing:1px; font-size:30px;">Fuego Lento</span>
+        </a>
+
+        <!-- Toggler -->
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible content -->
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+
+          <!-- Center links -->
+          <ul class="navbar-nav mx-xl-auto justify-content-xl-center align-items-xl-center">
+            <li class="nav-item"><a class="nav-link" href="/#hero">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link" href="/#about">Nuestra brasa</a></li>
+            <li class="nav-item"><a class="nav-link" href="/menu">Menu</a></li>
+            <li class="nav-item"><a class="nav-link" href="/#gallery">Galería</a></li>
+            <li class="nav-item"><a class="nav-link" href="/#contact">Contacto</a></li>
+          </ul>
+
+          <!-- Actions -->
+          <div class="d-flex flex-column flex-xl-row gap-2 gap-xl-3 ms-xl-auto mt-3 mt-xl-0 navbar-actions">
+
+            <!-- Comanda -->
+            <a href="/order" class="btn-login text-center position-relative" aria-label="Ir a tu comanda">
+              <i class="bi bi-cart me-1"></i> COMANDA
+
+              {{#cartCount}}
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    aria-label="Platos en la comanda">
+                {{cartCount}}
+              </span>
+              {{/cartCount}}
+            </a>
+
+            <a href="/profile" class="btn-login text-center">Mi cuenta</a>
+
+            <a href="/#book-a-table" class="btn-book-a-table text-center">Reservar</a>
+          </div>
+
+        </div>
+      </nav>
+
+    </div>
+  </div>
+</header>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Panel Admin - Usuarios | Fuego Lento</title>
+
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+  {{> fragments/header-admin}}
+
+  <main class="main">
+
+    <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Gestión de usuarios</h1>
+        <p>Bloquea o reactiva usuarios desde el panel de administración.</p>
+      </div>
+    </div>
+
+    <section class="section admin-section">
+      <div class="container" data-aos="fade-up">
+
+        {{#successMessage}}<div class="alert alert-success">{{successMessage}}</div>{{/successMessage}}
+        {{#errorMessage}}<div class="alert alert-danger">{{errorMessage}}</div>{{/errorMessage}}
+
+        <div class="admin-toolbar d-flex align-items-center justify-content-between gap-3 flex-wrap">
+          <h2 class="admin-title mb-0">Usuarios</h2>
+
+          <!-- Search -->
+          <form class="admin-search" style="max-width: 360px;" method="get" action="/admin/users">
+            <i class="bi bi-search"></i>
+            <input type="text"
+                   class="form-control"
+                   name="q"
+                   value="{{q}}"
+                   placeholder="Buscar por usuario o email...">
+          </form>
+        </div>
+
+        <div class="table-responsive admin-table-wrap">
+          <table class="table admin-table align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {{#users}}
+              <tr>
+                <td>{{id}}</td>
+                <td>{{username}}</td>
+                <td>{{email}}</td>
+                <td>
+                  {{#roles}}
+                    <span class="badge text-bg-secondary me-1">{{.}}</span>
+                  {{/roles}}
+                </td>
+
+                <td>
+                  {{^banned}}<span class="badge status-active">Activo</span>{{/banned}}
+                  {{#banned}}<span class="badge status-banned">Baneado</span>{{/banned}}
+                </td>
+
+                <td class="text-end">
+                  {{#banned}}
+                    <button type="button"
+                            class="btn btn-sm btn-success-soft"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmUserActionModal"
+                            data-user-id="{{id}}"
+                            data-username="{{username}}"
+                            data-action="unban"
+                            data-q="{{q}}">
+                      <i class="bi bi-check-circle me-1"></i> Desbanear
+                    </button>
+                  {{/banned}}
+
+                  {{^banned}}
+                    <button type="button"
+                            class="btn btn-sm btn-danger-soft"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmUserActionModal"
+                            data-user-id="{{id}}"
+                            data-username="{{username}}"
+                            data-action="ban"
+                            data-q="{{q}}">
+                      <i class="bi bi-slash-circle me-1"></i> Banear
+                    </button>
+                  {{/banned}}
+                </td>
+              </tr>
+              {{/users}}
+
+              {{^users}}
+              <tr>
+                <td colspan="6" class="text-center" style="opacity:0.8; padding: 18px;">
+                  No hay usuarios que mostrar.
+                </td>
+              </tr>
+              {{/users}}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4">
+          <a href="/" class="btn btn-kds-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Volver al inicio
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <!-- Confirm modal (BAN / UNBAN) -->
+  <div class="modal fade" id="confirmUserActionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content"
+           style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 16px;">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+          <h5 class="modal-title" id="confirmUserActionTitle">Confirmar acción</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-body" id="confirmUserActionBody"
+             style="color: color-mix(in srgb, var(--default-color), transparent 10%);">
+          <!-- texto por JS -->
+        </div>
+
+        <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+          <button type="button" class="btn btn-outline-light"
+                  style="border-radius:999px; border-color: var(--border-color);"
+                  data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <form method="post" id="confirmUserActionForm" class="m-0">
+            <input type="hidden" name="_csrf" value="{{token}}">
+            <input type="hidden" name="q" id="confirmUserActionQ" value="">
+            <button type="submit" class="btn btn-primary" id="confirmUserActionBtn" style="border-radius:999px;">
+              Confirmar
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+
+    const modalEl = document.getElementById('confirmUserActionModal');
+    if (modalEl) {
+      modalEl.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+
+        const userId = button.getAttribute('data-user-id');
+        const username = button.getAttribute('data-username');
+        const action = button.getAttribute('data-action'); // "ban" | "unban"
+        const q = button.getAttribute('data-q') || "";
+
+        const title = document.getElementById('confirmUserActionTitle');
+        const body = document.getElementById('confirmUserActionBody');
+        const form = document.getElementById('confirmUserActionForm');
+        const confirmBtn = document.getElementById('confirmUserActionBtn');
+        const qInput = document.getElementById('confirmUserActionQ');
+
+        qInput.value = q;
+
+        if (action === 'ban') {
+          title.textContent = 'Confirmar baneo';
+          body.textContent = `¿Seguro que quieres banear a "${username}"? No podrá iniciar sesión.`;
+          form.action = `/admin/users/${userId}/ban`;
+          confirmBtn.textContent = 'Sí, banear';
+        } else {
+          title.textContent = 'Confirmar reactivación';
+          body.textContent = `¿Seguro que quieres desbanear a "${username}"? Podrá iniciar sesión de nuevo.`;
+          form.action = `/admin/users/${userId}/unban`;
+          confirmBtn.textContent = 'Sí, desbanear';
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

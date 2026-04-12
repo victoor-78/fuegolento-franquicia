@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Error {{errorCode}} | Fuego Lento</title>
+
+  <!-- Favicons -->
+  <link href="/img/logo.png" rel="icon">
+  <link href="/img/logo.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="/css/main.css" rel="stylesheet">
+  <link href="/css/admin.css" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+  {{#isLogged}}
+    {{#isAdmin}}
+      {{> fragments/header-admin}}
+    {{/isAdmin}}
+    {{^isAdmin}}
+      {{> fragments/header-user}}
+    {{/isAdmin}}
+  {{/isLogged}}
+
+  {{^isLogged}}
+    {{> fragments/header-guest}}
+  {{/isLogged}}
+
+  <main class="main">
+
+    <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Error {{errorCode}}</h1>
+        <p>{{errorTitle}}</p>
+      </div>
+    </div>
+
+    <section class="section" style="padding-top: 80px; padding-bottom: 90px;">
+      <div class="container" data-aos="fade-up">
+
+        <div class="row justify-content-center">
+          <div class="col-lg-9 col-xl-8">
+
+            <div class="p-5 p-md-5 rounded-4 shadow-lg"
+                 style="
+                    background: rgba(255,255,255,0.04);
+                    border: 1px solid var(--border-color);
+                    backdrop-filter: blur(6px);
+                    min-height: 300px;
+                 ">
+
+              <!-- Icon + Title -->
+              <div class="d-flex align-items-center gap-4 mb-4">
+
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="
+                        width:64px;
+                        height:64px;
+                        background: rgba(255,0,0,0.12);
+                        border: 1px solid rgba(255,0,0,0.35);
+                     ">
+                  <i class="bi bi-exclamation-triangle" style="font-size: 1.8rem;"></i>
+                </div>
+
+                <div>
+                  <h2 class="mb-1 fw-bold" style="font-size: 1.9rem;">
+                    {{errorTitle}}
+                  </h2>
+                  <small style="opacity:0.75; font-size: 0.95rem;">
+                    Código {{errorCode}}
+                  </small>
+                </div>
+
+              </div>
+
+              <!-- Message -->
+              <p class="mb-5" style="opacity:0.9; font-size: 1.05rem;">
+                {{errorMessage}}
+              </p>
+
+              <!-- Buttons -->
+              <div class="d-flex gap-3 flex-wrap">
+                <a class="btn btn-kds-primary px-4 py-2" href="{{primaryCtaHref}}">
+                  <i class="bi bi-house-door me-1"></i> {{primaryCtaText}}
+                </a>
+
+                <a class="btn btn-kds-secondary px-4 py-2" href="{{secondaryCtaHref}}">
+                  <i class="bi bi-arrow-right-circle me-1"></i> {{secondaryCtaText}}
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  {{> fragments/footer}}
+
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/aos/aos.js"></script>
+  <script src="/js/main.js"></script>
+
+  <script>
+    if (typeof AOS !== "undefined") {
+      AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+</body>
+</html>
