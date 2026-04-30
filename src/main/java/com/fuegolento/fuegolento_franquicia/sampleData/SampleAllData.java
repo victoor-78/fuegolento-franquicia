@@ -20,10 +20,13 @@ import com.fuegolento.fuegolento_franquicia.model.Dish;
 import com.fuegolento.fuegolento_franquicia.model.Image;
 import com.fuegolento.fuegolento_franquicia.model.Order;
 import com.fuegolento.fuegolento_franquicia.model.OrderItem;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.model.User;
 import com.fuegolento.fuegolento_franquicia.repository.DishRepository;
 import com.fuegolento.fuegolento_franquicia.repository.OrderRepository;
+import com.fuegolento.fuegolento_franquicia.repository.RestaurantRepository;
 import com.fuegolento.fuegolento_franquicia.repository.UserRepository;
+import com.fuegolento.fuegolento_franquicia.service.StockService;
 
 /**
  * Loads sample data into the database when the application starts.
@@ -36,22 +39,57 @@ public class SampleAllData {
     private final UserRepository userRepository;
     private final DishRepository dishRepository;
     private final OrderRepository orderRepository;
+    private final RestaurantRepository restaurantRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StockService stockService;
 
     public SampleAllData(
             UserRepository userRepository,
             DishRepository dishRepository,
             OrderRepository orderRepository,
-            PasswordEncoder passwordEncoder
+            RestaurantRepository restaurantRepository,
+            PasswordEncoder passwordEncoder,
+            StockService stockService
     ) {
         this.userRepository = userRepository;
         this.dishRepository = dishRepository;
         this.orderRepository = orderRepository;
+        this.restaurantRepository = restaurantRepository;
         this.passwordEncoder = passwordEncoder;
+        this.stockService = stockService;
     }
 
     @PostConstruct
     public void init() {
+
+        // ---------------------------
+        // RESTAURANTS
+        // ---------------------------
+        if (restaurantRepository.count() == 0) {
+            restaurantRepository.saveAll(List.of(
+                makeRestaurant("Fuego Lento Chamberí",          "Calle Luchana 14",           "Madrid",    "Madrid",    "Chamberí",    "28010", 40.4344, -3.7020, "910 000 001"),
+                makeRestaurant("Fuego Lento Retiro",            "Calle Menéndez Pelayo 45",   "Madrid",    "Madrid",    "Retiro",      "28009", 40.4132, -3.6810, "910 000 002"),
+                makeRestaurant("Fuego Lento Salamanca",         "Calle Serrano 72",           "Madrid",    "Madrid",    "Salamanca",   "28006", 40.4287, -3.6870, "910 000 003"),
+                makeRestaurant("Fuego Lento Malasaña",          "Calle Fuencarral 98",        "Madrid",    "Madrid",    "Malasaña",    "28004", 40.4261, -3.7031, "910 000 004"),
+                makeRestaurant("Fuego Lento Vallecas",          "Avenida de la Albufera 110", "Madrid",    "Madrid",    "Vallecas",    "28038", 40.3874, -3.6463, "910 000 005"),
+                makeRestaurant("Fuego Lento Carabanchel",       "Calle Oporto 23",            "Madrid",    "Madrid",    "Carabanchel", "28025", 40.3868, -3.7281, "910 000 006"),
+                makeRestaurant("Fuego Lento Hortaleza",         "Calle Silvano 55",           "Madrid",    "Madrid",    "Hortaleza",   "28033", 40.4760, -3.6510, "910 000 007"),
+                makeRestaurant("Fuego Lento Moncloa",           "Avenida Complutense 3",      "Madrid",    "Madrid",    "Moncloa",     "28040", 40.4460, -3.7261, "910 000 008"),
+                makeRestaurant("Fuego Lento Arganzuela",        "Paseo de las Delicias 60",   "Madrid",    "Madrid",    "Arganzuela",  "28045", 40.3999, -3.6985, "910 000 009"),
+                makeRestaurant("Fuego Lento Tetuán",            "Calle Bravo Murillo 180",    "Madrid",    "Madrid",    "Tetuán",      "28039", 40.4617, -3.7028, "910 000 010"),
+                makeRestaurant("Fuego Lento Latina",            "Calle Toledo 85",            "Madrid",    "Madrid",    "Latina",      "28005", 40.4065, -3.7194, "910 000 011"),
+                makeRestaurant("Fuego Lento Vicálvaro",         "Calle Alcalá 512",           "Madrid",    "Madrid",    "Vicálvaro",   "28032", 40.4089, -3.6071, "910 000 012"),
+                makeRestaurant("Fuego Lento Barajas",           "Avenida de Logroño 200",     "Madrid",    "Madrid",    "Barajas",     "28042", 40.4757, -3.5794, "910 000 013"),
+                makeRestaurant("Fuego Lento Barcelona Eixample","Carrer de Balmes 87",        "Barcelona", "Barcelona", "Eixample",    "08008", 41.3940,  2.1580, "930 000 001"),
+                makeRestaurant("Fuego Lento Sevilla Centro",    "Calle Sierpes 34",           "Sevilla",   "Sevilla",   "Casco Antiguo","41004",37.3896, -5.9920, "950 000 001"),
+                makeRestaurant("Fuego Lento Valencia Ruzafa",   "Calle Cuba 44",              "Valencia",  "Valencia",  "Ruzafa",      "46006", 39.4617, -0.3780, "960 000 001"),
+                makeRestaurant("Fuego Lento Bilbao Indautxu",   "Alameda Recalde 19",         "Bilbao",    "Bizkaia",   "Indautxu",    "48009", 43.2620, -2.9385, "940 000 001"),
+                makeRestaurant("Fuego Lento Zaragoza Centro",   "Calle Alfonso I 23",         "Zaragoza",  "Zaragoza",  "Centro",      "50003", 41.6548, -0.8791, "970 000 001")
+            ));
+        }
+
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+        Random random = new Random();
 
         // ---------------------------
         // USERS (ensure base users + create many clients + fix null createdAt)
@@ -426,7 +464,7 @@ public class SampleAllData {
             );
             setImageIfExists(cervezaLimon, "static/img/dishes/cerveza-limon.png");
 
-            dishRepository.saveAll(List.of(
+            List<Dish> allDishes = List.of(
                     // old
                     chuleton, costillar, croquetas, tartaQueso,
                     entrecot, secreto, ensalada, agua,
@@ -438,7 +476,11 @@ public class SampleAllData {
                     brownie, coulant, flan, cookie,
                     // drinks
                     ribera, rioja, vinoCasa, vinoBlanco, cervezaCasa, cervezaLimon
-            ));
+            );
+            for (Dish dish : allDishes) {
+                dish.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
+            }
+            dishRepository.saveAll(allDishes);
         }
 
         // ---------------------------
@@ -471,6 +513,7 @@ public class SampleAllData {
             o1.setTableNumber(7);
             o1.setCustomerNote("Presa al punto, por favor.");
             o1.setCreatedAt(LocalDateTime.now().minusMinutes(35));
+            o1.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
             addItem(o1, presa, 1);
             addItem(o1, provolone, 1);
             addItem(o1, cerveza, 2);
@@ -481,6 +524,7 @@ public class SampleAllData {
             o2.setTableNumber(3);
             o2.setCustomerNote("Traer torreznos para compartir.");
             o2.setCreatedAt(LocalDateTime.now().minusMinutes(55));
+            o2.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
             addItem(o2, parrillada, 1);
             addItem(o2, torreznos, 1);
             addItem(o2, cervezaLimon, 2);
@@ -491,6 +535,7 @@ public class SampleAllData {
             o3.setTableNumber(12);
             o3.setCustomerNote("Con patatas extra.");
             o3.setCreatedAt(LocalDateTime.now().minusMinutes(75));
+            o3.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
             addItem(o3, burger, 2);
             addItem(o3, patatas, 1);
             addItem(o3, rioja, 2);
@@ -526,6 +571,7 @@ public class SampleAllData {
                 // Day distribution (last 14 days)
                 int daysAgo = r.nextInt(14);
 
+
                 // Lunch peak: 13-15, Dinner peak: 20-22, some random in between
                 int hour = pickHourForOrders(r);
                 int minute = r.nextInt(60);
@@ -542,6 +588,7 @@ public class SampleAllData {
                 delivered.setTableNumber(1 + r.nextInt(12));
                 delivered.setCustomerNote(r.nextInt(10) < 2 ? "Sin cebolla, por favor." : null);
                 delivered.setCreatedAt(createdAt);
+                delivered.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
 
                 // 2-5 items, with quantities 1-2
                 int itemsCount = 2 + r.nextInt(4);
@@ -558,6 +605,12 @@ public class SampleAllData {
                 orderRepository.save(delivered);
             }
         }
+
+        // ---------------------------
+        // STOCK — ensure every (restaurant, dish) pair has a stock entry (available=true by default)
+        // ---------------------------
+        List<Dish> allDishes = dishRepository.findAll();
+        stockService.ensureStockEntriesExist(restaurants, allDishes);
     }
 
     private User ensureUser(String username,
@@ -621,6 +674,23 @@ public class SampleAllData {
     private void addItem(Order order, Dish dish, int quantity) {
         OrderItem item = new OrderItem(dish, quantity, dish.getPrice());
         order.addItem(item);
+    }
+
+    private Restaurant makeRestaurant(String name, String address, String city, String province,
+                                      String district, String postalCode,
+                                      double latitude, double longitude, String phone) {
+        Restaurant r = new Restaurant();
+        r.setName(name);
+        r.setAddress(address);
+        r.setCity(city);
+        r.setProvince(province);
+        r.setDistrict(district);
+        r.setPostalCode(postalCode);
+        r.setLatitude(latitude);
+        r.setLongitude(longitude);
+        r.setPhone(phone);
+        r.setActive(true);
+        return r;
     }
 
     private void setImageIfExists(Dish dish, String classpathLocation) {

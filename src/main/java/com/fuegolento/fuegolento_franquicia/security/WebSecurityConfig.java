@@ -21,6 +21,9 @@ public class WebSecurityConfig {
     @Autowired
     private RepositoryUserDetailsService userDetailsService;
 
+    @Autowired
+    private RestaurantSuccessHandler restaurantSuccessHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -105,7 +108,7 @@ public class WebSecurityConfig {
             // ===============================
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
-                .defaultSuccessUrl("/profile", true)
+                .successHandler(restaurantSuccessHandler)
                 .failureHandler((request, response, exception) -> {
                     if (exception instanceof org.springframework.security.authentication.DisabledException) {
                         response.sendRedirect("/banned");
