@@ -9,6 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.view.RedirectView;
 
 @Configuration
 public class CSRFHandlerConfiguration implements WebMvcConfigurer {
@@ -29,12 +30,17 @@ class CSRFHandlerInterceptor implements HandlerInterceptor {
             ModelAndView modelAndView
     ) throws Exception {
 
-        if (modelAndView != null) {
-
+        if (modelAndView != null && !isRedirect(modelAndView)) {
             CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
             if (token != null) {
                 modelAndView.addObject("token", token.getToken());
             }
         }
+    }
+
+    private boolean isRedirect(ModelAndView mav) {
+        if (mav.getView() instanceof RedirectView) return true;
+        String viewName = mav.getViewName();
+        return viewName != null && viewName.startsWith("redirect:");
     }
 }

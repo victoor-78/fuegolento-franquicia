@@ -33,6 +33,12 @@
           <!-- Actions -->
           <div class="d-flex flex-column flex-xl-row gap-2 gap-xl-3 ms-xl-auto mt-3 mt-xl-0 navbar-actions">
 
+            {{#selectedRestaurant}}
+            <span class="text-white-50 small align-self-center">
+              <i class="bi bi-geo-alt"></i> {{selectedRestaurant.name}}
+            </span>
+            {{/selectedRestaurant}}
+
             <!-- Comanda -->
             <a href="/order" class="btn-login text-center position-relative" aria-label="Ir a tu comanda">
               <i class="bi bi-cart me-1"></i> COMANDA

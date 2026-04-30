@@ -9,15 +9,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.fuegolento.fuegolento_franquicia.model.User;
+import com.fuegolento.fuegolento_franquicia.service.RestaurantService;
 import com.fuegolento.fuegolento_franquicia.service.UserService;
 
 @Controller
 public class AuthController {
 
     private final UserService userService;
+    private final RestaurantService restaurantService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, RestaurantService restaurantService) {
         this.userService = userService;
+        this.restaurantService = restaurantService;
     }
 
     /* =========================
@@ -34,13 +37,14 @@ public class AuthController {
             return "redirect:/profile";
         }
 
-        // Used to open the correct tab by JS in the template
+        model.addAttribute("restaurants", restaurantService.findAllActive());
         model.addAttribute("activeTab", "login");
         return "login";
     }
 
     @GetMapping("/loginerror")
     public String loginError(Model model) {
+        model.addAttribute("restaurants", restaurantService.findAllActive());
         model.addAttribute("error", "Usuario o contraseña incorrectos.");
         model.addAttribute("activeTab", "login");
         return "login";
@@ -48,6 +52,7 @@ public class AuthController {
 
     @GetMapping("/banned")
     public String banned(Model model) {
+        model.addAttribute("restaurants", restaurantService.findAllActive());
         model.addAttribute("error", "Tu cuenta ha sido bloqueada. Contacta con el administrador.");
         model.addAttribute("activeTab", "login");
         return "login";

@@ -102,6 +102,19 @@
                   </div>
 
                   <div class="col-12">
+                    <label class="form-label" for="restaurantId">¿En qué restaurante estás?</label>
+                    <div class="input-with-icon">
+                      <i class="bi bi-geo-alt"></i>
+                      <select id="restaurantId" name="restaurantId" class="form-control" required>
+                        <option value="" disabled selected>Selecciona tu restaurante</option>
+                        {{#restaurants}}
+                        <option value="{{id}}">{{name}} — {{district}}, {{city}}</option>
+                        {{/restaurants}}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
                     <button type="submit" class="btn btn-primary w-100 btn-fuego">
                       Entrar
                     </button>
