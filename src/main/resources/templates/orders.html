@@ -98,12 +98,14 @@
                     {{/tableNumber}}
                   </div>
 
-                  {{#subtitle}}
-                  <div class="orders-subtitle">{{subtitle}}</div>
-                  {{/subtitle}}
-                  {{^subtitle}}
+                  {{#hasRestaurantName}}
+                  <div class="orders-subtitle">
+                    <i class="bi bi-geo-alt me-1"></i>{{restaurantName}}
+                  </div>
+                  {{/hasRestaurantName}}
+                  {{^hasRestaurantName}}
                   <div class="orders-subtitle">Comanda registrada</div>
-                  {{/subtitle}}
+                  {{/hasRestaurantName}}
                 </div>
 
                 <!-- Status -->
@@ -161,18 +163,16 @@
                       <span>Volver a pedir</span>
                     </a>
 
-                    <!-- Invoice PDF -->
+                    <!-- Invoice PDF — only when delivered -->
+                    {{#isDelivered}}
                     <a href="/order/{{id}}/invoice"
                        class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-2"
                        style="border-radius:999px; padding:8px 14px;">
                       <i class="bi bi-filetype-pdf"></i>
                       <span>Factura (PDF)</span>
                     </a>
+                    {{/isDelivered}}
                   </div>
-
-                  <small class="text-muted" style="opacity:.8;">
-                    * La factura solo estará disponible cuando el pedido esté <strong>DELIVERED</strong>.
-                  </small>
 
                 </div>
               </div>
@@ -184,11 +184,6 @@
         </div>
         {{/hasOrders}}
 
-        <div class="orders-foot-note mt-4">
-          <small>
-            * Los pedidos se muestran desde base de datos. La comanda en estado PENDING (carrito) no aparece aquí.
-          </small>
-        </div>
 
       </div>
     </section>

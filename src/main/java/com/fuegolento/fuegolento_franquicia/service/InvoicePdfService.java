@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.fuegolento.fuegolento_franquicia.model.Order;
 import com.fuegolento.fuegolento_franquicia.model.OrderItem;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 
 
 import com.itextpdf.io.image.ImageData;
@@ -36,10 +37,10 @@ import com.itextpdf.layout.properties.UnitValue;
 @Service
 public class InvoicePdfService {
 
-    // ===== Customize =====
-    private static final String RESTAURANT_NAME = "Fuego Lento";
-    private static final String RESTAURANT_ADDRESS = "Calle Serrano N56 , Madrid";
-    private static final String RESTAURANT_PHONE = "+34 999 999 999";
+    // ===== Fallback constants (used when order has no restaurant) =====
+    private static final String FALLBACK_NAME = "Fuego Lento";
+    private static final String FALLBACK_ADDRESS = "Madrid";
+    private static final String FALLBACK_PHONE = "+34 999 999 999";
     private static final String FOOTER_LINE = "Gracias por su visita!";
 
     // Brand colors
@@ -50,6 +51,15 @@ public class InvoicePdfService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public void writeInvoicePdf(Order order, OutputStream out) throws IOException {
+
+        // Resolve restaurant info from order (null-safe)
+        Restaurant restaurant = order.getRestaurant();
+        String restaurantName = (restaurant != null && restaurant.getName() != null)
+                ? restaurant.getName() : FALLBACK_NAME;
+        String restaurantAddress = (restaurant != null)
+                ? buildAddress(restaurant) : FALLBACK_ADDRESS;
+        String restaurantPhone = (restaurant != null && restaurant.getPhone() != null)
+                ? restaurant.getPhone() : FALLBACK_PHONE;
 
         PdfWriter writer = new PdfWriter(out);
         PdfDocument pdfDoc = new PdfDocument(writer);
@@ -80,7 +90,7 @@ public class InvoicePdfService {
         }
 
         // Restaurant name
-        Paragraph name = new Paragraph(RESTAURANT_NAME)
+        Paragraph name = new Paragraph(restaurantName)
                 .setFontColor(BRAND_ACCENT)
                 .setBold()
                 .setFontSize(26)
@@ -220,8 +230,8 @@ public class InvoicePdfService {
         document.add(new Paragraph(" ").setMarginTop(18));
 
         Paragraph footer = new Paragraph(
-                RESTAURANT_ADDRESS + "\n" +
-                RESTAURANT_PHONE + "\n" +
+                restaurantAddress + "\n" +
+                restaurantPhone + "\n" +
                 FOOTER_LINE
         )
         .setTextAlignment(TextAlignment.CENTER)
@@ -289,5 +299,15 @@ public class InvoicePdfService {
     private String money(BigDecimal value) {
         if (value == null) return "0.00";
         return value.setScale(2, RoundingMode.HALF_UP).toString();
+    }
+
+    private String buildAddress(Restaurant r) {
+        StringBuilder sb = new StringBuilder();
+        if (r.getAddress() != null) sb.append(r.getAddress());
+        if (r.getCity() != null) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(r.getCity());
+        }
+        return sb.length() > 0 ? sb.toString() : FALLBACK_ADDRESS;
     }
 }

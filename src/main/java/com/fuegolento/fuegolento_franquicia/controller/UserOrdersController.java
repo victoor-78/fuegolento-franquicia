@@ -5,7 +5,9 @@ import com.fuegolento.fuegolento_franquicia.enums.OrderStatus;
 import com.fuegolento.fuegolento_franquicia.model.Dish;
 import com.fuegolento.fuegolento_franquicia.model.Order;
 import com.fuegolento.fuegolento_franquicia.model.OrderItem;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.model.User;
+import com.fuegolento.fuegolento_franquicia.repository.RestaurantRepository;
 import com.fuegolento.fuegolento_franquicia.service.OrderService;
 import com.fuegolento.fuegolento_franquicia.service.UserService;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 import java.math.BigDecimal;
@@ -30,10 +33,13 @@ public class UserOrdersController {
 
     private final UserService userService;
     private final OrderService orderService;
+    private final RestaurantRepository restaurantRepository;
 
-    public UserOrdersController(UserService userService, OrderService orderService) {
+    public UserOrdersController(UserService userService, OrderService orderService,
+                                RestaurantRepository restaurantRepository) {
         this.userService = userService;
         this.orderService = orderService;
+        this.restaurantRepository = restaurantRepository;
     }
 
     @GetMapping("/orders")
@@ -68,7 +74,8 @@ public class UserOrdersController {
      */
     @GetMapping("/orders/duplicate")
     public void duplicateOrder(@RequestParam("orderId") Long orderId,
-                               HttpServletResponse response) throws IOException {
+                               HttpServletResponse response,
+                               HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
@@ -77,14 +84,27 @@ public class UserOrdersController {
 
         // ✅ VALIDACIÓN DE PERTENENCIA (CONTROL DE ACCESO)
         if (orderToDuplicate == null || !orderToDuplicate.getUser().getId().equals(user.getId())) {
-            // No existe la orden O no pertenece al usuario autenticado
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendError(403, "No tienes permiso para duplicar esta orden");
             return;
         }
 
-        // Si la validación pasó, duplicar la orden
-        orderService.duplicateOrder(user, orderId);
+        // Resolve fallback restaurant from session (used when source order has no restaurant)
+        Restaurant fallbackRestaurant = null;
+        if (orderToDuplicate.getRestaurant() == null) {
+            Long restaurantId = (Long) session.getAttribute("restaurantId");
+            if (restaurantId == null) {
+                response.sendRedirect("/restaurants");
+                return;
+            }
+            fallbackRestaurant = restaurantRepository.findById(restaurantId).orElse(null);
+            if (fallbackRestaurant == null) {
+                response.sendRedirect("/restaurants");
+                return;
+            }
+        }
+
+        orderService.duplicateOrder(user, orderId, fallbackRestaurant);
         response.sendRedirect("/order");
     }
 
@@ -97,6 +117,10 @@ public class UserOrdersController {
             Map<String, Object> vm = new HashMap<>();
 
             vm.put("id", o.getId());
+
+            String restaurantName = (o.getRestaurant() != null) ? o.getRestaurant().getName() : "";
+            vm.put("restaurantName", restaurantName);
+            vm.put("hasRestaurantName", !restaurantName.isEmpty());
 
             String createdAtText = (o.getCreatedAt() != null) ? o.getCreatedAt().format(fmt) : "";
             vm.put("createdAtText", createdAtText);
@@ -114,6 +138,7 @@ public class UserOrdersController {
             vm.put("noteText", note);
             vm.put("noteEmpty", "—".equals(note));
 
+            vm.put("isDelivered", st == OrderStatus.DELIVERED);
             vm.put("items", buildOrderItemsViewModel(o.getItems()));
 
             BigDecimal total;
