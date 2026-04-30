@@ -30,7 +30,7 @@
     <div class="page-title position-relative" data-aos="fade" style="background-image: url(/img/page-title-bg.webp);">
       <div class="container position-relative">
         <h1>Comanda #{{order.id}}</h1>
-        <p>Mesa {{order.tableNumber}} · {{order.createdAt}}</p>
+        <p>Mesa {{order.tableNumber}} · {{order.createdAt}} · <i class="bi bi-geo-alt me-1"></i>{{order.restaurantName}}</p>
       </div>
     </div>
 
@@ -68,6 +68,14 @@
               </div>
 
               <hr style="opacity:.15;">
+
+              <div class="mb-3" style="opacity:.8;">
+                <small>
+                  <i class="bi bi-geo-alt me-1"></i>
+                  <strong>{{order.restaurantName}}</strong>
+                  — {{order.restaurantAddress}}
+                </small>
+              </div>
 
               {{#order.hasCustomerNote}}
                 <div class="kds-note-box mb-3">

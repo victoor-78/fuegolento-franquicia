@@ -2,6 +2,7 @@ package com.fuegolento.fuegolento_franquicia.controller.admin;
 
 import com.fuegolento.fuegolento_franquicia.model.Order;
 import com.fuegolento.fuegolento_franquicia.model.OrderItem;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.service.KitchenService;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,9 +28,13 @@ public class KitchenController {
     }
 
     @GetMapping
-    public String kitchenBoard(Model model, CsrfToken csrfToken) {
+    public String kitchenBoard(Model model, CsrfToken csrfToken, HttpSession session) {
 
-        KitchenService.KitchenBoard board = kitchenService.getBoard();
+        Restaurant restaurant = (Restaurant) session.getAttribute("selectedRestaurant");
+
+        KitchenService.KitchenBoard board = (restaurant != null)
+                ? kitchenService.getBoardForRestaurant(restaurant)
+                : kitchenService.getBoard();
 
         List<Map<String, Object>> receivedVm = buildOrdersVm(board.received);
         List<Map<String, Object>> inProgressVm = buildOrdersVm(board.inProgress);

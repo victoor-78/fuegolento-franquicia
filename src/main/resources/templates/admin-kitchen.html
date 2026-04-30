@@ -43,6 +43,12 @@
             <h2 class="kds-title">Tablón de comandas</h2>
             <p class="kds-subtitle mb-0">
               Vista de cocina (KDS). Refresca para ver cambios.
+              {{#selectedRestaurant}}
+              · <i class="bi bi-geo-alt me-1"></i><strong>{{selectedRestaurant.name}}</strong>
+              {{/selectedRestaurant}}
+              {{^selectedRestaurant}}
+              · <span class="text-warning">Mostrando todas las franquicias</span>
+              {{/selectedRestaurant}}
             </p>
           </div>
 

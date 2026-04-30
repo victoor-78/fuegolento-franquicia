@@ -1,8 +1,11 @@
 package com.fuegolento.fuegolento_franquicia.controller.admin;
 
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.repository.OrderRepository;
 import com.fuegolento.fuegolento_franquicia.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpSession;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,10 +34,13 @@ public class DashboardApiController {
      * Example: /api/admin/dashboard/revenue-daily?days=14
      */
     @GetMapping("/revenue-daily")
-    public List<PointDto> revenueDaily(@RequestParam(defaultValue = "14") int days) {
+    public List<PointDto> revenueDaily(@RequestParam(defaultValue = "14") int days, HttpSession session) {
 
         LocalDateTime from = LocalDateTime.now().minusDays(Math.max(days, 1));
-        List<OrderRepository.DailyRevenueRow> rows = orderRepository.revenueByDaySince(from);
+        Restaurant restaurant = (Restaurant) session.getAttribute("selectedRestaurant");
+        List<OrderRepository.DailyRevenueRow> rows = (restaurant != null)
+                ? orderRepository.revenueByDaySinceForRestaurant(from, restaurant)
+                : orderRepository.revenueByDaySince(from);
 
         // Fill missing days with 0 so the chart looks continuous
         Map<LocalDate, BigDecimal> map = new HashMap<>();
@@ -60,10 +66,13 @@ public class DashboardApiController {
      * Example: /api/admin/dashboard/orders-by-hour?days=14
      */
     @GetMapping("/orders-by-hour")
-    public List<CountDto> ordersByHour(@RequestParam(defaultValue = "14") int days) {
+    public List<CountDto> ordersByHour(@RequestParam(defaultValue = "14") int days, HttpSession session) {
 
         LocalDateTime from = LocalDateTime.now().minusDays(Math.max(days, 1));
-        List<OrderRepository.HourCountRow> rows = orderRepository.deliveredCountByHourSince(from);
+        Restaurant restaurant = (Restaurant) session.getAttribute("selectedRestaurant");
+        List<OrderRepository.HourCountRow> rows = (restaurant != null)
+                ? orderRepository.deliveredCountByHourSinceForRestaurant(from, restaurant)
+                : orderRepository.deliveredCountByHourSince(from);
 
         long[] counts = new long[24];
         for (OrderRepository.HourCountRow r : rows) {

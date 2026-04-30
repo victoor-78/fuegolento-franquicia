@@ -142,6 +142,7 @@ public class AdminOrdersController {
 
             m.put("id", o.getId());
             m.put("tableNumber", o.getTableNumber() == null ? "-" : o.getTableNumber());
+            m.put("restaurantName", o.getRestaurant() != null ? o.getRestaurant().getName() : "-");
             m.put("time", o.getCreatedAt() == null ? "--:--" : o.getCreatedAt().format(timeFmt));
 
             int itemsCount = (o.getItems() == null) ? 0 : o.getItems().stream().mapToInt(OrderItem::getQuantity).sum();
@@ -165,6 +166,10 @@ public class AdminOrdersController {
         m.put("id", o.getId());
         m.put("tableNumber", o.getTableNumber() == null ? "-" : o.getTableNumber());
         m.put("createdAt", o.getCreatedAt() == null ? "--" : o.getCreatedAt().format(timeFmt));
+        m.put("restaurantName", o.getRestaurant() != null ? o.getRestaurant().getName() : "-");
+        m.put("restaurantAddress", o.getRestaurant() != null && o.getRestaurant().getAddress() != null
+                ? o.getRestaurant().getAddress() + (o.getRestaurant().getCity() != null ? ", " + o.getRestaurant().getCity() : "")
+                : "-");
         m.put("customerNote", o.getCustomerNote() == null ? "" : o.getCustomerNote());
         m.put("hasCustomerNote", o.getCustomerNote() != null && !o.getCustomerNote().isBlank());
 

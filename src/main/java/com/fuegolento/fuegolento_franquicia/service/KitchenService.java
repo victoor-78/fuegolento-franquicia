@@ -2,6 +2,7 @@ package com.fuegolento.fuegolento_franquicia.service;
 
 import com.fuegolento.fuegolento_franquicia.enums.OrderStatus;
 import com.fuegolento.fuegolento_franquicia.model.Order;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,14 @@ public class KitchenService {
         return board;
     }
 
+    public KitchenBoard getBoardForRestaurant(Restaurant restaurant) {
+        KitchenBoard board = new KitchenBoard();
+        board.received = orderRepository.findByRestaurantAndStatusOrderByCreatedAtAsc(restaurant, OrderStatus.SENT_TO_KITCHEN);
+        board.inProgress = orderRepository.findByRestaurantAndStatusOrderByCreatedAtAsc(restaurant, OrderStatus.IN_PROGRESS);
+        board.ready = orderRepository.findByRestaurantAndStatusOrderByCreatedAtAsc(restaurant, OrderStatus.READY);
+        return board;
+    }
+
     /* =========================
        ACTIONS (status transitions)
        ========================= */
@@ -61,14 +70,7 @@ public class KitchenService {
      * READY -> DELIVERED (recogida por camarero / entregada)
      */
     public Order moveToDelivered(Long orderId) {
-        Order order = orderService.findById(orderId);
-
-        if (order.getStatus() != OrderStatus.READY) {
-            throw new IllegalStateException("Only READY orders can be marked as DELIVERED");
-        }
-
-        order.setStatus(OrderStatus.DELIVERED);
-        return orderRepository.save(order);
+        return orderService.deliver(orderId);
     }
 
     public Order backToReceived(Long orderId) {
