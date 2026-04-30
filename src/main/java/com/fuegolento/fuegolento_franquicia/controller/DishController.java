@@ -16,10 +16,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fuegolento.fuegolento_franquicia.enums.DishCategory;
 import com.fuegolento.fuegolento_franquicia.model.Dish;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.model.User;
+import com.fuegolento.fuegolento_franquicia.repository.RestaurantRepository;
 import com.fuegolento.fuegolento_franquicia.service.DishService;
 import com.fuegolento.fuegolento_franquicia.service.OrderService;
 import com.fuegolento.fuegolento_franquicia.service.UserService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class DishController {
@@ -29,13 +33,16 @@ public class DishController {
     private final DishService dishService;
     private final OrderService orderService;
     private final UserService userService;
+    private final RestaurantRepository restaurantRepository;
 
     public DishController(DishService dishService,
                           OrderService orderService,
-                          UserService userService) {
+                          UserService userService,
+                          RestaurantRepository restaurantRepository) {
         this.dishService = dishService;
         this.orderService = orderService;
         this.userService = userService;
+        this.restaurantRepository = restaurantRepository;
     }
 
     @GetMapping("/menu")
@@ -43,7 +50,8 @@ public class DishController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) DishCategory category,
             Authentication authentication,
-            Model model
+            Model model,
+            HttpSession session
     ) {
         boolean isLogged = authentication != null
                 && authentication.isAuthenticated()
@@ -52,7 +60,8 @@ public class DishController {
         String searchQuery = (q == null || q.trim().isEmpty()) ? "" : q.trim();
         String categoryStr = (category == null) ? "" : category.name();
 
-        Page<Dish> firstPage = dishService.findAvailableMenuPage(searchQuery, category, 0, MENU_PAGE_SIZE);
+        Restaurant restaurant = restaurantFromSession(session);
+        Page<Dish> firstPage = dishService.findAvailableMenuPage(searchQuery, category, 0, MENU_PAGE_SIZE, restaurant);
 
         model.addAttribute("isLogged", isLogged);
         model.addAttribute("dishes", firstPage.getContent());
@@ -86,9 +95,11 @@ public class DishController {
     public MenuDishesResponse menuDishesApi(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) DishCategory category,
-            @RequestParam(defaultValue = "0") int page
+            @RequestParam(defaultValue = "0") int page,
+            HttpSession session
     ) {
-        Page<Dish> result = dishService.findAvailableMenuPage(q, category, page, MENU_PAGE_SIZE);
+        Restaurant restaurant = restaurantFromSession(session);
+        Page<Dish> result = dishService.findAvailableMenuPage(q, category, page, MENU_PAGE_SIZE, restaurant);
 
         List<DishCardDto> cards = result.getContent().stream()
                 .map(d -> new DishCardDto(
@@ -163,5 +174,12 @@ public class DishController {
         }
 
         return "dish-detail";
+    }
+
+    /** Reads restaurantId from session and loads the Restaurant entity. Returns null if not set. */
+    private Restaurant restaurantFromSession(HttpSession session) {
+        Long restaurantId = (Long) session.getAttribute("restaurantId");
+        if (restaurantId == null) return null;
+        return restaurantRepository.findById(restaurantId).orElse(null);
     }
 }

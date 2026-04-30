@@ -3,6 +3,7 @@ package com.fuegolento.fuegolento_franquicia.service;
 import com.fuegolento.fuegolento_franquicia.enums.DishCategory;
 import com.fuegolento.fuegolento_franquicia.model.Dish;
 import com.fuegolento.fuegolento_franquicia.model.Image;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.repository.DishRepository;
 
 import org.springframework.data.domain.Page;
@@ -22,10 +23,12 @@ public class DishService {
 
     private final DishRepository dishRepository;
     private final ImageService imageService;
+    private final StockService stockService;
 
-    public DishService(DishRepository dishRepository, ImageService imageService) {
+    public DishService(DishRepository dishRepository, ImageService imageService, StockService stockService) {
         this.dishRepository = dishRepository;
         this.imageService = imageService;
+        this.stockService = stockService;
     }
 
     /* =========================
@@ -38,6 +41,15 @@ public class DishService {
 
     public List<Dish> findAvailableByCategory(DishCategory category) {
         return dishRepository.findByCategoryAndAvailableTrue(category);
+    }
+
+    /**
+     * Returns dishes that are globally available AND have stock at the given restaurant.
+     * A dish without a stock entry is treated as available (default open).
+     */
+    public List<Dish> findAvailableByRestaurant(Restaurant restaurant) {
+        List<Dish> globallyAvailable = dishRepository.findByAvailableTrue();
+        return stockService.getAvailableDishes(restaurant, globallyAvailable);
     }
 
     public List<Dish> searchAvailableByName(String query) {
@@ -61,11 +73,22 @@ public class DishService {
      * For the practice, it is perfectly acceptable and avoids crashes.
      */
     public Page<Dish> findAvailableMenuPage(String q, DishCategory category, int page, int size) {
+        return findAvailableMenuPage(q, category, page, size, null);
+    }
+
+    /**
+     * Menu pagination with optional per-restaurant stock filtering.
+     * When a restaurant is provided, only dishes available at that restaurant are shown.
+     * Dishes without a stock entry default to available.
+     */
+    public Page<Dish> findAvailableMenuPage(String q, DishCategory category, int page, int size, Restaurant restaurant) {
 
         String query = (q == null) ? "" : q.trim().toLowerCase();
 
-        // 1) Load available dishes ordered by id (stable order)
-        List<Dish> all = dishRepository.findByAvailableTrue();
+        // 1) Load available dishes, filtered by restaurant stock if one is selected
+        List<Dish> all = new ArrayList<>(restaurant != null
+                ? stockService.getAvailableDishes(restaurant, dishRepository.findByAvailableTrue())
+                : dishRepository.findByAvailableTrue());
         all.sort((a, b) -> Long.compare(a.getId(), b.getId()));
 
         // 2) Filter in memory
