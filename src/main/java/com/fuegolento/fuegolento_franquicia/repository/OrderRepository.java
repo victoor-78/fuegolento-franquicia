@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.fuegolento.fuegolento_franquicia.enums.OrderStatus;
 import com.fuegolento.fuegolento_franquicia.model.Order;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.model.User;
 
 /**
@@ -25,6 +26,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Get the latest order of a user with a given status (used for cart=PENDING)
     Optional<Order> findFirstByUserAndStatusOrderByCreatedAtDesc(User user, OrderStatus status);
+
+    // Get the latest restaurant-scoped cart of a user (used for multi-restaurant cart)
+    Optional<Order> findFirstByUserAndRestaurantAndStatusOrderByCreatedAtDesc(User user, Restaurant restaurant, OrderStatus status);
 
     // Get all orders with a specific status
     List<Order> findByStatusOrderByCreatedAtAsc(OrderStatus status);
@@ -43,6 +47,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     );
 
     List<Order> findByUserAndStatusNotOrderByCreatedAtDesc(User user, OrderStatus status);
+
+    // Restaurant-scoped kitchen queries
+    List<Order> findByRestaurantAndStatusOrderByCreatedAtAsc(Restaurant restaurant, OrderStatus status);
+
     // ========= DASHBOARD QUERIES =========
 
     interface DailyRevenueRow {
@@ -79,4 +87,33 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY function('hour', o.createdAt)
     """)
     List<HourCountRow> deliveredCountByHourSince(@Param("from") LocalDateTime from);
+
+    // ========= RESTAURANT-SCOPED DASHBOARD QUERIES =========
+
+    @Query("""
+        SELECT
+            function('date', o.createdAt) as day,
+            sum(o.totalPrice) as revenue
+        FROM OrderTable o
+        WHERE o.status = com.fuegolento.fuegolento_franquicia.enums.OrderStatus.DELIVERED
+          AND o.totalPrice IS NOT NULL
+          AND o.createdAt >= :from
+          AND o.restaurant = :restaurant
+        GROUP BY function('date', o.createdAt)
+        ORDER BY function('date', o.createdAt)
+    """)
+    List<DailyRevenueRow> revenueByDaySinceForRestaurant(@Param("from") LocalDateTime from, @Param("restaurant") Restaurant restaurant);
+
+    @Query("""
+        SELECT
+            function('hour', o.createdAt) as hour,
+            count(o) as count
+        FROM OrderTable o
+        WHERE o.status = com.fuegolento.fuegolento_franquicia.enums.OrderStatus.DELIVERED
+          AND o.createdAt >= :from
+          AND o.restaurant = :restaurant
+        GROUP BY function('hour', o.createdAt)
+        ORDER BY function('hour', o.createdAt)
+    """)
+    List<HourCountRow> deliveredCountByHourSinceForRestaurant(@Param("from") LocalDateTime from, @Param("restaurant") Restaurant restaurant);
 }

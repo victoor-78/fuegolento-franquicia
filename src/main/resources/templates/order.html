@@ -227,7 +227,7 @@
               </div>
 
               <!-- Table number (REQUIRED) -->
-              <div class="comanda-field mt-4">
+              <div class="comanda-field mt-4" id="tableSelectField">
                 <label for="tableNumber" class="comanda-label">
                   Número de mesa <span class="required">*</span>
                 </label>
@@ -263,6 +263,9 @@
                   <small class="comanda-hint">
                     El número de mesa está indicado en la esquina de la mesa.
                   </small>
+                  <div id="tableMissingMsg" class="text-danger mt-2 small" style="display:none;">
+                    <i class="bi bi-exclamation-circle me-1"></i> Selecciona y guarda tu mesa antes de enviar.
+                  </div>
 
                   <div class="mt-2">
                     <button class="btn btn-outline-light w-100" type="submit" style="border-radius:999px;">
@@ -288,7 +291,7 @@
               <div class="mt-4 d-grid gap-2">
                 {{#hasItems}}
                 <button type="button" class="btn btn-primary w-100" style="border-radius:999px;"
-                        data-bs-toggle="modal" data-bs-target="#confirmKitchenModal">
+                        id="enviarCocinaBtn">
                   <i class="bi bi-send me-1"></i> Enviar a cocina
                 </button>
                 {{/hasItems}}
@@ -336,7 +339,7 @@
           </div>
 
           <div class="modal-body" style="color: color-mix(in srgb, var(--default-color), transparent 10%);">
-            ¿Seguro que quieres enviar la comanda a cocina? No podrás editarla después. (simulación)
+            ¿Seguro que quieres enviar la comanda a cocina? No podrás editarla después.
           </div>
 
           <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
@@ -369,6 +372,32 @@
   <script>
     if (typeof AOS !== "undefined") {
       AOS.init({ duration: 600, easing: "ease-in-out", once: true });
+    }
+  </script>
+
+  <script>
+    const tableAlreadySaved = {{#tableNumber}}true{{/tableNumber}}{{^tableNumber}}false{{/tableNumber}};
+
+    const enviarBtn = document.getElementById('enviarCocinaBtn');
+    if (enviarBtn) {
+      enviarBtn.addEventListener('click', function () {
+        if (!tableAlreadySaved) {
+          const field   = document.getElementById('tableSelectField');
+          const select  = document.getElementById('tableNumber');
+          const msg     = document.getElementById('tableMissingMsg');
+
+          field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          select.classList.add('is-invalid');
+          msg.style.display = 'block';
+
+          select.addEventListener('change', function () {
+            select.classList.remove('is-invalid');
+            msg.style.display = 'none';
+          }, { once: true });
+        } else {
+          new bootstrap.Modal(document.getElementById('confirmKitchenModal')).show();
+        }
+      });
     }
   </script>
 

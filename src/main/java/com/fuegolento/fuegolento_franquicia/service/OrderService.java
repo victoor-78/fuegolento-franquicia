@@ -5,6 +5,7 @@ import com.fuegolento.fuegolento_franquicia.enums.OrderStatus;
 import com.fuegolento.fuegolento_franquicia.model.Dish;
 import com.fuegolento.fuegolento_franquicia.model.Order;
 import com.fuegolento.fuegolento_franquicia.model.OrderItem;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.model.User;
 import com.fuegolento.fuegolento_franquicia.repository.OrderItemRepository;
 import com.fuegolento.fuegolento_franquicia.repository.OrderRepository;
@@ -65,40 +66,56 @@ public class OrderService {
        ========================= */
 
     /**
-     * Returns the current cart of the user (latest PENDING order).
-     * If not exists, creates a new PENDING order.
+     * Returns the restaurant-scoped cart of the user (latest PENDING order for that restaurant).
+     * If not exists, creates a new PENDING order bound to the restaurant.
      */
-    public Order getOrCreateCart(User user) {
+    public Order getOrCreateCart(User user, Restaurant restaurant) {
         if (user == null) throw new IllegalArgumentException("User is required");
+        if (restaurant == null) throw new IllegalArgumentException("Restaurant is required");
 
         return orderRepository
-                .findFirstByUserAndStatusOrderByCreatedAtDesc(user, OrderStatus.PENDING)
+                .findFirstByUserAndRestaurantAndStatusOrderByCreatedAtDesc(user, restaurant, OrderStatus.PENDING)
                 .orElseGet(() -> {
                     Order order = new Order(user);
+                    order.setRestaurant(restaurant);
                     order.setStatus(OrderStatus.PENDING);
                     return orderRepository.save(order);
                 });
     }
 
     /**
-     * Returns the current cart if exists, otherwise null.
-     * Useful for pages like /order to show "empty cart" without creating a new row.
+     * Returns the restaurant-scoped cart if it exists, otherwise null.
+     * When restaurant is null, falls back to the most recent PENDING cart regardless of restaurant
+     * (used for read-only views like the cart badge).
      */
-    public Order getCartIfExists(User user) {
+    public Order getCartIfExists(User user, Restaurant restaurant) {
         if (user == null) throw new IllegalArgumentException("User is required");
 
+        if (restaurant != null) {
+            return orderRepository
+                    .findFirstByUserAndRestaurantAndStatusOrderByCreatedAtDesc(user, restaurant, OrderStatus.PENDING)
+                    .orElse(null);
+        }
         return orderRepository
                 .findFirstByUserAndStatusOrderByCreatedAtDesc(user, OrderStatus.PENDING)
                 .orElse(null);
     }
 
     /**
-     * Adds quantity units of a dish to the user's cart.
+     * Restaurant-agnostic overload — used by GlobalModelAttributes (cart badge)
+     * and any context where a restaurant is not yet selected.
      */
-    public Order addToCart(User user, Long dishId, int quantity) {
+    public Order getCartIfExists(User user) {
+        return getCartIfExists(user, null);
+    }
+
+    /**
+     * Adds quantity units of a dish to the user's restaurant-scoped cart.
+     */
+    public Order addToCart(User user, Restaurant restaurant, Long dishId, int quantity) {
         if (quantity <= 0) throw new IllegalArgumentException("Quantity must be > 0");
 
-        Order cart = getOrCreateCart(user);
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         Dish dish = dishService.findById(dishId);
@@ -119,11 +136,11 @@ public class OrderService {
     }
 
     /**
-     * Sets quantity for a dish inside the user's cart.
+     * Sets quantity for a dish inside the user's restaurant-scoped cart.
      * If quantity <= 0, removes the item.
      */
-    public Order setCartDishQuantity(User user, Long dishId, int quantity) {
-        Order cart = getOrCreateCart(user);
+    public Order setCartDishQuantity(User user, Restaurant restaurant, Long dishId, int quantity) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         OrderItem item = orderItemRepository.findByOrderAndDish_Id(cart, dishId)
@@ -139,10 +156,10 @@ public class OrderService {
     }
 
     /**
-     * Removes a dish from the user's cart.
+     * Removes a dish from the user's restaurant-scoped cart.
      */
-    public Order removeFromCart(User user, Long dishId) {
-        Order cart = getOrCreateCart(user);
+    public Order removeFromCart(User user, Restaurant restaurant, Long dishId) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         OrderItem item = orderItemRepository.findByOrderAndDish_Id(cart, dishId)
@@ -153,10 +170,10 @@ public class OrderService {
     }
 
     /**
-     * Empties the user's cart (removes all items).
+     * Empties the user's restaurant-scoped cart (removes all items).
      */
-    public Order clearCart(User user) {
-        Order cart = getOrCreateCart(user);
+    public Order clearCart(User user, Restaurant restaurant) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         if (cart.getItems() != null) {
@@ -189,11 +206,11 @@ public class OrderService {
        ========================= */
 
     /**
-     * Submits the current cart to the kitchen.
+     * Submits the restaurant-scoped cart to the kitchen.
      * PENDING -> SENT_TO_KITCHEN
      */
-    public Order submitCart(User user) {
-        Order cart = getCartIfExists(user);
+    public Order submitCart(User user, Restaurant restaurant) {
+        Order cart = getCartIfExists(user, restaurant);
         if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new IllegalStateException("Cannot submit an empty cart");
         }
@@ -272,8 +289,8 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order setCartItemKitchenNote(User user, Long dishId, String kitchenNote) {
-        Order cart = getOrCreateCart(user);
+    public Order setCartItemKitchenNote(User user, Restaurant restaurant, Long dishId, String kitchenNote) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         OrderItem item = orderItemRepository.findByOrderAndDish_Id(cart, dishId)
@@ -285,8 +302,8 @@ public class OrderService {
         return orderRepository.save(cart);
     }
 
-    public Order setCartItemMeatPoint(User user, Long dishId, String meatPoint) {
-        Order cart = getOrCreateCart(user);
+    public Order setCartItemMeatPoint(User user, Restaurant restaurant, Long dishId, String meatPoint) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         Dish dish = dishService.findById(dishId);
@@ -320,8 +337,8 @@ public class OrderService {
         return orderRepository.save(cart);
     }
 
-    public Order setCartTableNumber(User user, Integer tableNumber) {
-        Order cart = getOrCreateCart(user);
+    public Order setCartTableNumber(User user, Restaurant restaurant, Integer tableNumber) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         if (tableNumber == null || tableNumber < 1 || tableNumber > 20) {
@@ -332,8 +349,8 @@ public class OrderService {
         return orderRepository.save(cart);
     }
 
-    public Order setCartCustomerNote(User user, String customerNote) {
-        Order cart = getOrCreateCart(user);
+    public Order setCartCustomerNote(User user, Restaurant restaurant, String customerNote) {
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         if (customerNote != null && customerNote.trim().isEmpty()) customerNote = null;
@@ -452,12 +469,16 @@ public class OrderService {
     /**
      * ✅ Duplicates a previous order into the current cart.
      * Educational demo for access control: validates user ownership.
+     * fallbackRestaurant is used when the source order has no restaurant (legacy data).
      */
-    public Order duplicateOrder(User user, Long orderId) {
+    public Order duplicateOrder(User user, Long orderId, Restaurant fallbackRestaurant) {
         Order orderToDuplicate = findById(orderId);
 
-        // Get or create cart for current user
-        Order cart = getOrCreateCart(user);
+        Restaurant restaurant = orderToDuplicate.getRestaurant();
+        if (restaurant == null) restaurant = fallbackRestaurant;
+        if (restaurant == null) throw new IllegalStateException("Source order has no restaurant");
+
+        Order cart = getOrCreateCart(user, restaurant);
         ensureEditable(cart);
 
         // Copy all items from the old order to cart

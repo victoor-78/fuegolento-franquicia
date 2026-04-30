@@ -13,7 +13,9 @@ import com.fuegolento.fuegolento_franquicia.enums.OrderStatus;
 import com.fuegolento.fuegolento_franquicia.model.Dish;
 import com.fuegolento.fuegolento_franquicia.model.Order;
 import com.fuegolento.fuegolento_franquicia.model.OrderItem;
+import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 import com.fuegolento.fuegolento_franquicia.model.User;
+import com.fuegolento.fuegolento_franquicia.repository.RestaurantRepository;
 import com.fuegolento.fuegolento_franquicia.service.InvoicePdfService;
 import com.fuegolento.fuegolento_franquicia.service.OrderService;
 import com.fuegolento.fuegolento_franquicia.service.UserService;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/order")
@@ -31,13 +34,16 @@ public class OrderController {
     private final OrderService orderService;
     private final UserService userService;
     private final InvoicePdfService invoicePdfService;
+    private final RestaurantRepository restaurantRepository;
 
     public OrderController(OrderService orderService,
                            UserService userService,
-                           InvoicePdfService invoicePdfService) {
+                           InvoicePdfService invoicePdfService,
+                           RestaurantRepository restaurantRepository) {
         this.orderService = orderService;
         this.userService = userService;
         this.invoicePdfService = invoicePdfService;
+        this.restaurantRepository = restaurantRepository;
     }
 
     /* =========================
@@ -45,13 +51,14 @@ public class OrderController {
        ========================= */
 
     @GetMapping
-    public String orderPage(Model model, CsrfToken csrfToken) {
+    public String orderPage(Model model, CsrfToken csrfToken, HttpSession session) {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
         // IMPORTANT: we don't create a new row just to show empty cart
-        Order cart = orderService.getCartIfExists(user);
+        Restaurant restaurant = getRestaurantFromSession(session);
+        Order cart = orderService.getCartIfExists(user, restaurant);
 
         boolean hasItems = cart != null && cart.getItems() != null && !cart.getItems().isEmpty();
 
@@ -92,47 +99,63 @@ public class OrderController {
     @PostMapping("/add")
     public void addToCart(@RequestParam("dishId") Long dishId,
                           @RequestParam(value = "quantity", defaultValue = "1") int quantity,
-                          HttpServletResponse response) throws IOException {
+                          HttpServletResponse response,
+                          HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.addToCart(user, dishId, quantity);
+        Restaurant restaurant = getRestaurantFromSession(session);
+        if (restaurant == null) {
+            response.sendRedirect("/restaurants");
+            return;
+        }
 
-        // Use sendRedirect to ensure a clean HTTP redirect without extra parameters
+        orderService.addToCart(user, restaurant, dishId, quantity);
         response.sendRedirect("/menu");
     }
 
     @PostMapping("/update")
     public void updateQuantity(@RequestParam("dishId") Long dishId,
                                @RequestParam("quantity") int quantity,
-                               HttpServletResponse response) throws IOException {
+                               HttpServletResponse response,
+                               HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.setCartDishQuantity(user, dishId, quantity);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.setCartDishQuantity(user, restaurant, dishId, quantity);
         response.sendRedirect("/order");
     }
 
     @PostMapping("/remove")
     public void removeDish(@RequestParam("dishId") Long dishId,
-                           HttpServletResponse response) throws IOException {
+                           HttpServletResponse response,
+                           HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.removeFromCart(user, dishId);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.removeFromCart(user, restaurant, dishId);
         response.sendRedirect("/order");
     }
 
     @PostMapping("/clear")
-    public void clearCart(HttpServletResponse response) throws IOException {
+    public void clearCart(HttpServletResponse response, HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.clearCart(user);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.clearCart(user, restaurant);
         response.sendRedirect("/order");
     }
 
@@ -143,47 +166,62 @@ public class OrderController {
     @PostMapping("/comment")
     public void saveItemComment(@RequestParam("dishId") Long dishId,
                                 @RequestParam(value = "comment", required = false) String comment,
-                                HttpServletResponse response) throws IOException {
+                                HttpServletResponse response,
+                                HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.setCartItemKitchenNote(user, dishId, comment);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.setCartItemKitchenNote(user, restaurant, dishId, comment);
         response.sendRedirect("/order");
     }
 
     @PostMapping("/meat-point")
     public void saveMeatPoint(@RequestParam("dishId") Long dishId,
                               @RequestParam("meatPoint") String meatPoint,
-                              HttpServletResponse response) throws IOException {
+                              HttpServletResponse response,
+                              HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        // Only MEAT dishes allowed (your service should validate this)
-        orderService.setCartItemMeatPoint(user, dishId, meatPoint);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.setCartItemMeatPoint(user, restaurant, dishId, meatPoint);
         response.sendRedirect("/order");
     }
 
     @PostMapping("/table")
     public void saveTableNumber(@RequestParam("tableNumber") Integer tableNumber,
-                                HttpServletResponse response) throws IOException {
+                                HttpServletResponse response,
+                                HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.setCartTableNumber(user, tableNumber);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.setCartTableNumber(user, restaurant, tableNumber);
         response.sendRedirect("/order");
     }
 
     @PostMapping("/general-comment")
     public void saveGeneralComment(@RequestParam(value = "generalComment", required = false) String generalComment,
-                                   HttpServletResponse response) throws IOException {
+                                   HttpServletResponse response,
+                                   HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        orderService.setCartCustomerNote(user, generalComment);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        orderService.setCartCustomerNote(user, restaurant, generalComment);
         response.sendRedirect("/order");
     }
 
@@ -192,12 +230,15 @@ public class OrderController {
        ========================= */
 
     @PostMapping("/submit")
-    public void submitCart(Model model, CsrfToken csrfToken, HttpServletResponse response) throws IOException {
+    public void submitCart(Model model, CsrfToken csrfToken, HttpServletResponse response, HttpSession session) throws IOException {
 
         User user = userService.getAuthenticatedUser()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        Order cart = orderService.getCartIfExists(user);
+        Restaurant restaurant = requireRestaurantFromSession(session, response);
+        if (restaurant == null) return;
+
+        Order cart = orderService.getCartIfExists(user, restaurant);
 
         if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
             response.sendRedirect("/order?error=empty");
@@ -209,7 +250,7 @@ public class OrderController {
             return;
         }
 
-        orderService.submitCart(user);
+        orderService.submitCart(user, restaurant);
         response.sendRedirect("/order/confirmation");
     }
 
@@ -307,5 +348,24 @@ public class OrderController {
     private String formatMoney(BigDecimal value) {
         if (value == null) return "0.00";
         return value.setScale(2, RoundingMode.HALF_UP).toString();
+    }
+
+    /** Returns the Restaurant stored in session, or null if none. */
+    private Restaurant getRestaurantFromSession(HttpSession session) {
+        Long restaurantId = (Long) session.getAttribute("restaurantId");
+        if (restaurantId == null) return null;
+        return restaurantRepository.findById(restaurantId).orElse(null);
+    }
+
+    /**
+     * Like getRestaurantFromSession, but writes a redirect to /restaurants
+     * and returns null when no restaurant is in session — callers must return immediately.
+     */
+    private Restaurant requireRestaurantFromSession(HttpSession session, HttpServletResponse response) throws IOException {
+        Restaurant restaurant = getRestaurantFromSession(session);
+        if (restaurant == null) {
+            response.sendRedirect("/restaurants");
+        }
+        return restaurant;
     }
 }
