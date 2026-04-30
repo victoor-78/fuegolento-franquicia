@@ -102,8 +102,9 @@ public class AdminDishesController {
             // Availability badge
             boolean available = d.isAvailable();
             m.put("availableLabel", available ? "Sí" : "No");
-            // Reuse your existing classes (status-active / status-banned)
             m.put("availableBadgeClass", available ? "status-active" : "status-banned");
+            m.put("available", available);
+            m.put("notAvailable", !available);
 
             // Image URL (from DB image if exists)
             String imageUrl = "/img/menu/default-dish.png";
@@ -259,6 +260,24 @@ public class AdminDishesController {
 
         ra.addFlashAttribute("form", form);
         return "redirect:/admin/products/" + id + "/edit";
+    }
+
+    /* =========================
+       TOGGLE AVAILABILITY
+       ========================= */
+
+    @PostMapping("/{id}/toggle-available")
+    public String toggleAvailable(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            Dish dish = dishService.findById(id);
+            dish.setAvailable(!dish.isAvailable());
+            dishService.update(id, dish, null);
+            String label = dish.isAvailable() ? "disponible" : "sin stock";
+            ra.addFlashAttribute("successMessage", "Producto marcado como " + label + ".");
+        } catch (Exception ex) {
+            ra.addFlashAttribute("errorMessage", "No se pudo cambiar la disponibilidad.");
+        }
+        return "redirect:/admin/products";
     }
 
     /* =========================

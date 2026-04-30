@@ -34,6 +34,14 @@
           <!-- Actions -->
           <div class="d-flex flex-column flex-xl-row gap-2 gap-xl-3 ms-xl-auto mt-3 mt-xl-0 navbar-actions">
 
+            <!-- Restaurant badge -->
+            {{#selectedRestaurant}}
+            <span class="align-self-center"
+                  style="border:1px solid rgba(255,255,255,0.3); padding:4px 10px; border-radius:20px; font-size:0.8rem; color:rgba(255,255,255,0.85);">
+              <i class="bi bi-geo-alt me-1"></i>{{selectedRestaurant.name}} — {{selectedRestaurant.district}}
+            </span>
+            {{/selectedRestaurant}}
+
             <!-- Comanda -->
             <a href="/order" class="btn-login text-center position-relative" aria-label="Ir a tu comanda">
               <i class="bi bi-cart me-1"></i> COMANDA

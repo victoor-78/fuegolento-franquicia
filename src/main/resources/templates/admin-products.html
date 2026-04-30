@@ -117,6 +117,22 @@
                       <a href="/admin/products/{{id}}/edit" class="btn btn-sm btn-kds-secondary me-2">
                         <i class="bi bi-pencil me-1"></i> Editar
                       </a>
+                      {{#available}}
+                      <form action="/admin/products/{{id}}/toggle-available" method="post" class="d-inline me-2">
+                        <input type="hidden" name="_csrf" value="{{token}}">
+                        <button type="submit" class="btn btn-sm btn-kds-primary">
+                          <i class="bi bi-slash-circle me-1"></i> Sin stock
+                        </button>
+                      </form>
+                      {{/available}}
+                      {{#notAvailable}}
+                      <form action="/admin/products/{{id}}/toggle-available" method="post" class="d-inline me-2">
+                        <input type="hidden" name="_csrf" value="{{token}}">
+                        <button type="submit" class="btn btn-sm btn-success rounded-pill">
+                          <i class="bi bi-toggle-on me-1"></i> Reponer
+                        </button>
+                      </form>
+                      {{/notAvailable}}
                       <button class="btn btn-sm btn-danger-soft" type="button" disabled>
                         <i class="bi bi-trash3 me-1"></i> Eliminar
                       </button>
