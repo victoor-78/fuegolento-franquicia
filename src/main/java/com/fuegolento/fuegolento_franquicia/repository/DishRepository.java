@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.fuegolento.fuegolento_franquicia.enums.DishCategory;
 import com.fuegolento.fuegolento_franquicia.model.Dish;
-import com.fuegolento.fuegolento_franquicia.model.Restaurant;
 
 /**
  * Repository for Dish entity.
@@ -26,9 +25,6 @@ public interface DishRepository extends JpaRepository<Dish, Long> {
 
     // Public menu: only available dishes
     List<Dish> findByAvailableTrue();
-
-    // Restaurant-scoped menu: only available dishes for a given restaurant
-    List<Dish> findByRestaurantAndAvailableTrue(Restaurant restaurant);
 
     // Public menu by category: only available dishes
     List<Dish> findByCategoryAndAvailableTrue(DishCategory category);

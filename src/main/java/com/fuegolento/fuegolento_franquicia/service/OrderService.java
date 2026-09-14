@@ -266,10 +266,6 @@ public class OrderService {
         // Snapshot for auditing/history
         order.setTotalPriceSnapshot(total);
 
-        // Optional: if your entity also has totalPrice used by views
-        // (Remove this line if your Order entity does not have setTotalPrice)
-        // order.setTotalPrice(total);
-
         order.setStatus(OrderStatus.DELIVERED);
 
         return orderRepository.save(order);

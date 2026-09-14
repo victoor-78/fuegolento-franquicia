@@ -477,9 +477,6 @@ public class SampleAllData {
                     // drinks
                     ribera, rioja, vinoCasa, vinoBlanco, cervezaCasa, cervezaLimon
             );
-            for (Dish dish : allDishes) {
-                dish.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
-            }
             dishRepository.saveAll(allDishes);
         }
 
