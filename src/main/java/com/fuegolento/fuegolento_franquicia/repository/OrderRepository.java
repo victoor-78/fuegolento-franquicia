@@ -51,6 +51,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Restaurant-scoped kitchen queries
     List<Order> findByRestaurantAndStatusOrderByCreatedAtAsc(Restaurant restaurant, OrderStatus status);
 
+    // Used to check idempotently whether historical sample data has already been seeded
+    long countByStatus(OrderStatus status);
+
     // ========= DASHBOARD QUERIES =========
 
     interface DailyRevenueRow {

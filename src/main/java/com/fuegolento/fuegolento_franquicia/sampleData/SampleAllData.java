@@ -1,7 +1,6 @@
 package com.fuegolento.fuegolento_franquicia.sampleData;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -42,6 +41,7 @@ public class SampleAllData {
     private final RestaurantRepository restaurantRepository;
     private final PasswordEncoder passwordEncoder;
     private final StockService stockService;
+    private final OrderHistorySeeder orderHistorySeeder;
 
     public SampleAllData(
             UserRepository userRepository,
@@ -49,7 +49,8 @@ public class SampleAllData {
             OrderRepository orderRepository,
             RestaurantRepository restaurantRepository,
             PasswordEncoder passwordEncoder,
-            StockService stockService
+            StockService stockService,
+            OrderHistorySeeder orderHistorySeeder
     ) {
         this.userRepository = userRepository;
         this.dishRepository = dishRepository;
@@ -57,6 +58,7 @@ public class SampleAllData {
         this.restaurantRepository = restaurantRepository;
         this.passwordEncoder = passwordEncoder;
         this.stockService = stockService;
+        this.orderHistorySeeder = orderHistorySeeder;
     }
 
     @PostConstruct
@@ -481,30 +483,26 @@ public class SampleAllData {
         }
 
         // ---------------------------
-        // ORDERS (kitchen board + delivered history for charts)
+        // ORDERS — kitchen board demo (non-delivered)
         // ---------------------------
-        // If you already have some orders, we still want enough delivered orders for charts.
-        if (orderRepository.count() < 30) {
+        boolean kitchenBoardEmpty = orderRepository.countByStatus(OrderStatus.SENT_TO_KITCHEN) == 0
+                && orderRepository.countByStatus(OrderStatus.IN_PROGRESS) == 0
+                && orderRepository.countByStatus(OrderStatus.READY) == 0;
 
-            Dish tomahawk = findDishExact("Tomahawk a la brasa");
+        if (kitchenBoardEmpty) {
+
             Dish presa = findDishExact("Presa ibérica al carbón");
             Dish parrillada = findDishExact("Parrillada Fuego Lento");
             Dish burger = findDishExact("Hamburguesa Black Angus");
 
             Dish provolone = findDishExact("Provolone al horno");
-            Dish chorizo = findDishExact("Chorizo criollo a la brasa");
             Dish torreznos = findDishExact("Torreznos crujientes");
             Dish patatas = findDishExact("Patatas cheddar y bacon");
 
-            Dish brownie = findDishExact("Brownie con nueces y helado");
-            Dish flan = findDishExact("Flan de huevo");
-
             Dish cerveza = findDishExact("Cerveza de la casa");
             Dish cervezaLimon = findDishExact("Cerveza con limón");
-            Dish vinoBlanco = findDishExact("Vino blanco Pescadito (semidulce)");
             Dish rioja = findDishExact("Rioja crianza");
 
-            // --- Kitchen board examples (non-delivered) ---
             Order o1 = new Order(user);
             o1.setStatus(OrderStatus.SENT_TO_KITCHEN);
             o1.setTableNumber(7);
@@ -537,76 +535,29 @@ public class SampleAllData {
             addItem(o3, patatas, 1);
             addItem(o3, rioja, 2);
             orderRepository.save(o3);
-
-            // --- Many DELIVERED orders for dashboard charts ---
-            // We'll create delivered orders distributed across last 14 days and realistic hours (lunch/dinner peaks).
-            List<User> usersPool = new ArrayList<>();
-            usersPool.add(user);
-            usersPool.add(maria);
-            usersPool.add(juan);
-            usersPool.add(admin);
-
-            // Add some of the client users to the pool
-            for (int i = 1; i <= 20; i++) {
-                String uname = String.format("client%02d", i);
-                userRepository.findByUsername(uname).ifPresent(usersPool::add);
-            }
-
-            Random r = new Random(99);
-            List<Dish> dishesPool = List.of(
-                    presa, parrillada, burger, tomahawk,
-                    provolone, chorizo, torreznos, patatas,
-                    brownie, flan,
-                    cerveza, cervezaLimon, vinoBlanco, rioja
-            );
-
-            int deliveredOrdersToCreate = 40;
-            for (int i = 0; i < deliveredOrdersToCreate; i++) {
-
-                User orderUser = usersPool.get(r.nextInt(usersPool.size()));
-
-                // Day distribution (last 14 days)
-                int daysAgo = r.nextInt(14);
-
-
-                // Lunch peak: 13-15, Dinner peak: 20-22, some random in between
-                int hour = pickHourForOrders(r);
-                int minute = r.nextInt(60);
-
-                LocalDateTime createdAt = LocalDateTime.now()
-                        .minusDays(daysAgo)
-                        .withHour(hour)
-                        .withMinute(minute)
-                        .withSecond(0)
-                        .withNano(0);
-
-                Order delivered = new Order(orderUser);
-                delivered.setStatus(OrderStatus.DELIVERED);
-                delivered.setTableNumber(1 + r.nextInt(12));
-                delivered.setCustomerNote(r.nextInt(10) < 2 ? "Sin cebolla, por favor." : null);
-                delivered.setCreatedAt(createdAt);
-                delivered.setRestaurant(restaurants.get(random.nextInt(restaurants.size())));
-
-                // 2-5 items, with quantities 1-2
-                int itemsCount = 2 + r.nextInt(4);
-                for (int k = 0; k < itemsCount; k++) {
-                    Dish dish = dishesPool.get(r.nextInt(dishesPool.size()));
-                    int qty = 1 + (r.nextInt(10) < 3 ? 1 : 0); // sometimes 2
-                    addItem(delivered, dish, qty);
-                }
-
-                // Store snapshot total for reporting
-                BigDecimal total = delivered.calculateTotalFromItems();
-                delivered.setTotalPriceSnapshot(total.setScale(2, RoundingMode.HALF_UP));
-
-                orderRepository.save(delivered);
-            }
         }
+
+        // ---------------------------
+        // ORDERS — a year of DELIVERED/CANCELLED history for the dashboard and the Data Warehouse ETL
+        // ---------------------------
+        List<User> usersPool = new ArrayList<>();
+        usersPool.add(user);
+        usersPool.add(maria);
+        usersPool.add(juan);
+        usersPool.add(admin);
+
+        // Add some of the client users to the pool
+        for (int i = 1; i <= 20; i++) {
+            String uname = String.format("client%02d", i);
+            userRepository.findByUsername(uname).ifPresent(usersPool::add);
+        }
+
+        List<Dish> allDishes = dishRepository.findAll();
+        orderHistorySeeder.seedHistoricalOrders(restaurants, usersPool, allDishes);
 
         // ---------------------------
         // STOCK — ensure every (restaurant, dish) pair has a stock entry (available=true by default)
         // ---------------------------
-        List<Dish> allDishes = dishRepository.findAll();
         stockService.ensureStockEntriesExist(restaurants, allDishes);
     }
 
@@ -651,14 +602,6 @@ public class SampleAllData {
         if (roll < 45) return 16 + rnd.nextInt(4);   // 16-19
         if (roll < 90) return 20 + rnd.nextInt(3);   // 20-22
         return 13 + rnd.nextInt(3);                  // 13-15
-    }
-
-    private int pickHourForOrders(Random rnd) {
-        // Lunch / dinner peaks
-        int roll = rnd.nextInt(100);
-        if (roll < 50) return 13 + rnd.nextInt(3);   // 13-15
-        if (roll < 90) return 20 + rnd.nextInt(3);   // 20-22
-        return 17 + rnd.nextInt(3);                  // 17-19
     }
 
     private Dish findDishExact(String exactName) {
